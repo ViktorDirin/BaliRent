@@ -1,43 +1,34 @@
-import Image from "next/image";
-import Link from "next/link";
-import { MapPin } from "lucide-react";
+import React from 'react';
+import Link from 'next/link';
+import { Property } from '@/data/properties';
 
 interface PropertyCardProps {
-    title: string;
-    image: string;
-    location: string;
-    price?: string;
-    slug: string;
+    property: Property;
 }
 
-export default function PropertyCard({ title, image, location, price, slug }: PropertyCardProps) {
+export default function PropertyCard({ property }: PropertyCardProps) {
     return (
-        <div className="group relative overflow-hidden rounded-none bg-card shadow-lg transition-all hover:shadow-xl">
-            <div className="aspect-[4/3] overflow-hidden relative">
-                <Image
-                    src={image}
-                    alt={title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-            </div>
-            <div className="p-6 bg-white dark:bg-neutral-900 border-t-4 border-primary">
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span>{location}</span>
+        <Link href={`/properties/${property.id}`} className="group block">
+            <div className="bg-background border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                {/* Image Placeholder */}
+                <div className="w-full aspect-square bg-neutral-800/50 flex items-center justify-center group-hover:bg-neutral-800/60 transition-colors">
+                    <span className="text-muted-foreground text-sm font-medium">Image Placeholder</span>
                 </div>
-                <h3 className="text-xl font-serif font-bold mb-2 text-foreground">{title}</h3>
-                {price && (
-                    <p className="text-primary font-medium mb-4">{price}</p>
-                )}
-                <Link
-                    href={`/apartments/${slug}`}
-                    className="inline-block text-sm font-bold uppercase tracking-wider border-b-2 border-primary pb-1 hover:text-primary transition-colors"
-                >
-                    View Details
-                </Link>
+
+                {/* Details */}
+                <div className="p-4 space-y-2">
+                    <h3 className="font-serif font-bold text-lg text-foreground truncate">
+                        {property.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm truncate">
+                        {property.location}
+                    </p>
+                    <div className="pt-2 flex items-baseline gap-1">
+                        <span className="font-bold text-foreground">${property.pricePerNight}</span>
+                        <span className="text-muted-foreground text-sm">/ night</span>
+                    </div>
+                </div>
             </div>
-        </div>
+        </Link>
     );
 }

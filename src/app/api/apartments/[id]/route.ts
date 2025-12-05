@@ -9,16 +9,21 @@ export async function GET(
     try {
         const apartment = await prisma.apartment.findUnique({
             where: { id: params.id },
-            include: { bookings: true },
         });
 
         if (!apartment) {
-            return NextResponse.json({ error: "Apartment not found" }, { status: 404 });
+            return NextResponse.json(
+                { error: "Apartment not found" },
+                { status: 404 }
+            );
         }
 
         return NextResponse.json(apartment);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to fetch apartment" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to fetch apartment" },
+            { status: 500 }
+        );
     }
 }
 
@@ -39,13 +44,16 @@ export async function PUT(
                 location,
                 price,
                 slug,
-                images: JSON.stringify(images || []),
+                images: images ? JSON.stringify(images) : undefined,
             },
         });
 
         return NextResponse.json(apartment);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to update apartment" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to update apartment" },
+            { status: 500 }
+        );
     }
 }
 
@@ -61,6 +69,9 @@ export async function DELETE(
 
         return NextResponse.json({ message: "Apartment deleted successfully" });
     } catch (error) {
-        return NextResponse.json({ error: "Failed to delete apartment" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to delete apartment" },
+            { status: 500 }
+        );
     }
 }
