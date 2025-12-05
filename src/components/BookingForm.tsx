@@ -6,13 +6,15 @@ import { Calendar, User, ChevronDown } from 'lucide-react';
 interface BookingFormProps {
     pricePerNight: number;
     serviceFee: number;
+    apartmentId: string;
 }
 
-export default function BookingForm({ pricePerNight, serviceFee }: BookingFormProps) {
+export default function BookingForm({ pricePerNight, serviceFee, apartmentId }: BookingFormProps) {
     const [checkInDate, setCheckInDate] = useState<string>('');
     const [checkOutDate, setCheckOutDate] = useState<string>('');
     const [guests, setGuests] = useState<number>(1);
     const [settings, setSettings] = useState({ cleaningFee: 0, taxRate: 0 });
+    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -60,21 +62,46 @@ export default function BookingForm({ pricePerNight, serviceFee }: BookingFormPr
     const taxAmount = (subtotal * settings.taxRate) / 100;
     const totalPrice = numberOfNights > 0 ? subtotal + serviceFee + settings.cleaningFee + taxAmount : 0;
 
-    const handleBookingSubmit = (e: React.FormEvent) => {
+    const handleBookingSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Check Availability Clicked", {
+        setMessage(null);
+
+        if (numberOfNights <= 0) {
+            setMessage({ type: 'error', text: 'Please select valid dates.' });
+            return;
+        }
+
+        const payload = {
+            apartmentId,
             checkInDate,
             checkOutDate,
             guests,
-            totalPrice,
-            numberOfNights,
-            breakdown: {
-                subtotal,
-                serviceFee,
-                cleaningFee: settings.cleaningFee,
-                taxAmount
+            totalPrice: totalPrice.toFixed(2),
+            customerName: 'Test User',
+            customerEmail: 'test@example.com'
+        };
+
+        try {
+            const response = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                setMessage({ type: 'success', text: 'Booking created successfully!' });
+                setCheckInDate('');
+                setCheckOutDate('');
+                setGuests(1);
+            } else {
+                const data = await response.json();
+                setMessage({ type: 'error', text: data.error || 'Failed to create booking' });
             }
-        });
+        } catch (error) {
+            setMessage({ type: 'error', text: 'An unexpected error occurred.' });
+        }
     };
 
     return (
@@ -148,12 +175,19 @@ export default function BookingForm({ pricePerNight, serviceFee }: BookingFormPr
                 </div>
             </div>
 
+            {/* Message Display */}
+            {message && (
+                <div className={`p-3 rounded-lg mb-4 text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                    {message.text}
+                </div>
+            )}
+
             {/* Action Button */}
             <button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground py-3.5 rounded-lg font-medium hover:opacity-90 transition-opacity mb-6"
             >
-                Check Availability
+                Reserve
             </button>
 
             {/* Price Breakdown */}
