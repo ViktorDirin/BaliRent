@@ -36,9 +36,19 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
 
     // Image state
     const [imageUrlInput, setImageUrlInput] = useState("");
-    const [images, setImages] = useState<string[]>(
-        initialData.images ? JSON.parse(initialData.images) : []
-    );
+    // Image state initialization
+    const [images, setImages] = useState<string[]>(() => {
+        if (!initialData.images) return [];
+        if (Array.isArray(initialData.images)) return initialData.images;
+        try {
+            return JSON.parse(initialData.images);
+        } catch (e) {
+            if (typeof initialData.images === 'string' && initialData.images.trim().startsWith('http')) {
+                return [initialData.images];
+            }
+            return [];
+        }
+    });
 
     const handleAddImage = () => {
         if (imageUrlInput.trim()) {

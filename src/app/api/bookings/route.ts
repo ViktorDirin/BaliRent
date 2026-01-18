@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { bookingSchema } from '@/lib/validations';
+import { z } from 'zod';
 
 export async function GET() {
     try {
@@ -19,32 +21,28 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const {
-            apartmentId,
-            checkInDate,
-            checkOutDate,
-            guests,
-            totalPrice,
-            // Optional fields that might be passed
-            customerName,
-            customerEmail
-        } = body;
+
+        // Validate with Zod
+        const validatedData = bookingSchema.parse(body);
 
         const booking = await prisma.booking.create({
             data: {
-                apartmentId,
-                startDate: new Date(checkInDate),
-                endDate: new Date(checkOutDate),
-                guests: Number(guests),
-                totalPrice: String(totalPrice),
+                apartmentId: validatedData.apartmentId,
+                startDate: new Date(validatedData.checkInDate),
+                endDate: new Date(validatedData.checkOutDate),
+                guests: Number(validatedData.guests),
+                totalPrice: String(validatedData.totalPrice),
                 status: 'PENDING',
-                customerName,
-                customerEmail,
+                customerName: validatedData.customerName,
+                customerEmail: validatedData.customerEmail,
             },
         });
 
         return NextResponse.json(booking, { status: 201 });
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return NextResponse.json({ error: error.errors }, { status: 400 });
+        }
         console.error('Error creating booking:', error);
         return NextResponse.json(
             { error: 'Failed to create booking' },

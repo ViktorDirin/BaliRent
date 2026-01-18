@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,36 +17,34 @@ model User {
 }
 
 model Apartment {
-  id          String    @id @default(uuid())
-  title       String
-  description String
-  location    String
-  price       String
-  images      String    // JSON array of image URLs
-  slug        String    @unique
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  bookings    Booking[]
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  title         String
+  description   String
+  location      String
+  pricePerNight Float
+  pricePerMonth Float?
+  bedrooms      Int      @default(1)
+  hasAirCon     Boolean  @default(false)
+  hasWifi       Boolean  @default(true)
+  hasKitchen    Boolean  @default(false)
+  images        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Booking {
-  id            String    @id @default(uuid())
-  apartmentId   String
-  apartment     Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
-  customerName  String?
-  customerEmail String?
-  startDate     DateTime
-  endDate       DateTime
-  status        String    @default("pending") // pending, confirmed, cancelled
-  totalPrice    String
-  guests        Int       @default(1)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String   @id @default(uuid())
+  apartmentId String
+  userId      String
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
 }
 
 model Settings {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  value     String
-  updatedAt DateTime @updatedAt
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
 }

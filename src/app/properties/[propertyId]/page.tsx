@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BookingForm from '@/components/BookingForm';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ImageGallery from '@/components/ImageGallery';
-import { MOCK_PROPERTIES } from '@/data/properties';
+import { Property } from '@/data/properties';
 
 interface PropertyDetailsPageProps {
     params: {
@@ -14,15 +14,58 @@ interface PropertyDetailsPageProps {
 }
 
 export default function PropertyDetailsPage({ params }: PropertyDetailsPageProps) {
-    // Find the property matching the ID from params
-    const property = MOCK_PROPERTIES.find(p => p.id === params.propertyId);
+    const [property, setProperty] = useState<Property | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    if (!property) {
+    useEffect(() => {
+        async function fetchProperty() {
+            try {
+                const response = await fetch(`/api/apartments/${params.propertyId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        setError("Property not found");
+                    } else {
+                        setError("Failed to load property details");
+                    }
+                    return;
+                }
+                const data = await response.json();
+                setProperty(data);
+            } catch (err) {
+                console.error(err);
+                setError("An error occurred while loading the property");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (params.propertyId) {
+            fetchProperty();
+        }
+    }, [params.propertyId]);
+
+    if (loading) {
         return (
             <main className="min-h-screen flex flex-col bg-background text-foreground">
                 <Navbar />
                 <div className="flex-grow flex items-center justify-center">
-                    <h1 className="text-4xl font-serif font-bold">404 Property Not Found</h1>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+                <Footer />
+            </main>
+        );
+    }
+
+    if (error || !property) {
+        return (
+            <main className="min-h-screen flex flex-col bg-background text-foreground">
+                <Navbar />
+                <div className="flex-grow flex items-center justify-center">
+                    <div className="text-center">
+                        <h1 className="text-4xl font-serif font-bold mb-4">404</h1>
+                        <p className="text-xl text-muted-foreground">{error || "Property Not Found"}</p>
+                    </div>
                 </div>
                 <Footer />
             </main>
@@ -74,6 +117,7 @@ export default function PropertyDetailsPage({ params }: PropertyDetailsPageProps
                             <BookingForm
                                 pricePerNight={property.pricePerNight}
                                 serviceFee={property.serviceFee}
+                                apartmentId={property.id}
                             />
                         </div>
                     </div>

@@ -23,8 +23,9 @@ export default function NewApartmentPage() {
     const [images, setImages] = useState<string[]>([]);
 
     const handleAddImage = () => {
-        if (imageUrlInput.trim()) {
-            setImages([...images, imageUrlInput.trim()]);
+        const trimmedUrl = imageUrlInput.trim();
+        if (trimmedUrl) {
+            setImages((prev) => [...prev, trimmedUrl]);
             setImageUrlInput("");
         }
     };
@@ -44,9 +45,9 @@ export default function NewApartmentPage() {
                 title,
                 description,
                 pricePerNight: Number(pricePerNight),
-                beds: Number(beds),
+                bedrooms: Number(beds),
                 guests: Number(guests),
-                images: images.map(url => ({ url })),
+                images: images, // Send directly as string array ["url1", "url2"]
             };
 
             const response = await fetch("/api/admin/apartments", {

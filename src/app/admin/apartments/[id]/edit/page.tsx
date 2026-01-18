@@ -18,8 +18,9 @@ async function getApartment(id: string) {
     }
 }
 
-export default async function EditApartmentPage({ params }: { params: { id: string } }) {
-    const apartment = await getApartment(params.id);
+export default async function EditApartmentPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const apartment = await getApartment(id);
 
     if (!apartment) {
         notFound();

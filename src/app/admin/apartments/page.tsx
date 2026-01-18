@@ -56,17 +56,40 @@ export default async function ApartmentsPage() {
                     {apartments.map((apartment: any) => (
                         <div key={apartment.id} className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
                             <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative">
-                                {apartment.images && JSON.parse(apartment.images).length > 0 ? (
-                                    <img
-                                        src={JSON.parse(apartment.images)[0]}
-                                        alt={apartment.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-neutral-400">
-                                        <Building2 className="h-12 w-12" />
-                                    </div>
-                                )}
+                                <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative">
+                                    {(() => {
+                                        let images: string[] = [];
+                                        try {
+                                            const rawImages = apartment.images;
+                                            if (typeof rawImages === 'string') {
+                                                if (rawImages.trim().startsWith('http')) {
+                                                    images = [rawImages];
+                                                } else {
+                                                    const parsed = JSON.parse(rawImages);
+                                                    if (Array.isArray(parsed)) {
+                                                        images = parsed;
+                                                    }
+                                                }
+                                            } else if (Array.isArray(rawImages)) {
+                                                images = rawImages;
+                                            }
+                                        } catch (e) {
+                                            images = [];
+                                        }
+
+                                        return images.length > 0 ? (
+                                            <img
+                                                src={images[0]}
+                                                alt={apartment.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                                                <Building2 className="h-12 w-12" />
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
                             </div>
                             <div className="p-4">
                                 <h3 className="font-bold text-lg mb-2 truncate">{apartment.title}</h3>

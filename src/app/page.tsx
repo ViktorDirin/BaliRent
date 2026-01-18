@@ -4,12 +4,14 @@ import Footer from '@/components/Footer';
 import PropertyList from '@/components/PropertyList';
 import { Property } from '@/data/properties';
 
+import { config } from '@/lib/config';
+
 export default async function Home() {
   let properties: Property[] = [];
   let error = null;
 
   try {
-    const response = await fetch('http://localhost:3000/api/apartments', {
+    const response = await fetch(`${config.apiUrl}/api/apartments`, {
       cache: 'no-store'
     });
 
