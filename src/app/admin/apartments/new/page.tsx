@@ -17,6 +17,15 @@ export default function NewApartmentPage() {
     const [pricePerNight, setPricePerNight] = useState("");
     const [beds, setBeds] = useState("");
     const [guests, setGuests] = useState("");
+    // New fields
+    const [address, setAddress] = useState("");
+    const [city, setCity] = useState("Canggu");
+    const [bathrooms, setBathrooms] = useState("1");
+    const [hasPool, setHasPool] = useState(false);
+    const [hasWasher, setHasWasher] = useState(false);
+    const [checkInTime, setCheckInTime] = useState("14:00");
+    const [checkOutTime, setCheckOutTime] = useState("11:00");
+    const [cleaningFee, setCleaningFee] = useState("0");
 
     // Image state
     const [imageUrlInput, setImageUrlInput] = useState("");
@@ -47,6 +56,14 @@ export default function NewApartmentPage() {
                 pricePerNight: Number(pricePerNight),
                 bedrooms: Number(beds),
                 guests: Number(guests),
+                address,
+                city,
+                bathrooms: Number(bathrooms),
+                hasPool,
+                hasWasher,
+                checkInTime,
+                checkOutTime,
+                cleaningFee: Number(cleaningFee),
                 images: images, // Send directly as string array ["url1", "url2"]
             };
 
@@ -64,13 +81,6 @@ export default function NewApartmentPage() {
             }
 
             setSuccess(true);
-            // Optional: clear form or redirect
-            // setTitle("");
-            // setDescription("");
-            // setPricePerNight("");
-            // setBeds("");
-            // setGuests("");
-            // setImages([]);
 
             // Redirect after short delay
             setTimeout(() => {
@@ -141,10 +151,94 @@ export default function NewApartmentPage() {
                     </div>
                 </div>
 
+                {/* Location Section */}
+                <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+                    <h2 className="text-xl font-semibold mb-4">Location</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Address</label>
+                            <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="e.g. Jl. Pantai Batu Bolong No. 88"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">City</label>
+                            <input
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="e.g. Canggu"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Details & Amenities Section */}
+                <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+                    <h2 className="text-xl font-semibold mb-4">Details & Amenities</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Bathrooms</label>
+                            <input
+                                type="number"
+                                value={bathrooms}
+                                onChange={(e) => setBathrooms(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="1"
+                                min="1"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Check-in Time</label>
+                            <input
+                                type="time"
+                                value={checkInTime}
+                                onChange={(e) => setCheckInTime(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Check-out Time</label>
+                            <input
+                                type="time"
+                                value={checkOutTime}
+                                onChange={(e) => setCheckOutTime(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-6">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={hasPool}
+                                onChange={(e) => setHasPool(e.target.checked)}
+                                className="rounded border-neutral-300 text-primary focus:ring-primary h-5 w-5"
+                            />
+                            <span>Swimming Pool</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={hasWasher}
+                                onChange={(e) => setHasWasher(e.target.checked)}
+                                className="rounded border-neutral-300 text-primary focus:ring-primary h-5 w-5"
+                            />
+                            <span>Washing Machine</span>
+                        </label>
+                    </div>
+                </div>
+
                 {/* Pricing & Capacity Section */}
                 <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                     <h2 className="text-xl font-semibold mb-4">Pricing & Capacity</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div>
                             <label className="block text-sm font-medium mb-1">Price per Night ($)</label>
                             <input
@@ -155,6 +249,17 @@ export default function NewApartmentPage() {
                                 placeholder="0"
                                 min="0"
                                 required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Cleaning Fee ($)</label>
+                            <input
+                                type="number"
+                                value={cleaningFee}
+                                onChange={(e) => setCleaningFee(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="0"
+                                min="0"
                             />
                         </div>
                         <div>

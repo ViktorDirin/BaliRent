@@ -18,21 +18,20 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
     // Form state initialized with data
     const [title, setTitle] = useState(initialData.title || "");
     const [description, setDescription] = useState(initialData.description || "");
-    const [pricePerNight, setPricePerNight] = useState(initialData.price || "");
-    const [beds, setBeds] = useState(initialData.beds || ""); // Note: Schema doesn't have beds/guests explicitly shown in previous view but assuming they might exist or mapped to description/other fields. 
-    // Wait, looking at schema provided earlier: 
-    // model Apartment { id, title, description, location, price, images, slug, ... }
-    // The 'new' page had beds/guests but schema didn't show them in the view_file of schema.prisma earlier.
-    // I will stick to the schema fields I saw: title, description, location, price, slug, images.
-    // I will add 'location' and 'slug' which were missing in the 'new' page snippet I saw or maybe I missed them.
-    // Actually, let's look at the 'new' page again. It had pricePerNight, beds, guests.
-    // But the schema I saw: title, description, location, price, images, slug.
-    // I should probably map 'pricePerNight' to 'price'.
-    // And I need 'location' and 'slug'.
-    // I will add Location and Slug fields to the form as they are in the schema.
-
+    const [pricePerNight, setPricePerNight] = useState(initialData.pricePerNight || initialData.price || "");
+    const [beds, setBeds] = useState(initialData.bedrooms || initialData.beds || "");
     const [location, setLocation] = useState(initialData.location || "");
     const [slug, setSlug] = useState(initialData.slug || "");
+
+    // New fields
+    const [address, setAddress] = useState(initialData.address || "");
+    const [city, setCity] = useState(initialData.city || "Canggu");
+    const [bathrooms, setBathrooms] = useState(initialData.bathrooms || "1");
+    const [hasPool, setHasPool] = useState(initialData.hasPool || false);
+    const [hasWasher, setHasWasher] = useState(initialData.hasWasher || false);
+    const [checkInTime, setCheckInTime] = useState(initialData.checkInTime || "14:00");
+    const [checkOutTime, setCheckOutTime] = useState(initialData.checkOutTime || "11:00");
+    const [cleaningFee, setCleaningFee] = useState(initialData.cleaningFee || "0");
 
     // Image state
     const [imageUrlInput, setImageUrlInput] = useState("");
@@ -72,7 +71,16 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                 title,
                 description,
                 location,
-                price: String(pricePerNight), // Schema says String
+                address,
+                city,
+                pricePerNight: Number(pricePerNight), // Send as number
+                bedrooms: Number(beds),
+                bathrooms: Number(bathrooms),
+                hasPool,
+                hasWasher,
+                checkInTime,
+                checkOutTime,
+                cleaningFee: Number(cleaningFee),
                 slug,
                 images,
             };
@@ -160,17 +168,6 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Location</label>
-                            <input
-                                type="text"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
-                                placeholder="e.g. Bali, Indonesia"
-                                required
-                            />
-                        </div>
-                        <div>
                             <label className="block text-sm font-medium mb-1">Description</label>
                             <textarea
                                 value={description}
@@ -184,10 +181,105 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                     </div>
                 </div>
 
+                {/* Location Section */}
+                <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+                    <h2 className="text-xl font-semibold mb-4">Location</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Location Label</label>
+                            <input
+                                type="text"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="e.g. Bali, Indonesia"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">City</label>
+                            <input
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="e.g. Canggu"
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium mb-1">Full Address</label>
+                            <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="e.g. Jl. Pantai Batu Bolong No. 88"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Details & Amenities Section */}
+                <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+                    <h2 className="text-xl font-semibold mb-4">Details & Amenities</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Bathrooms</label>
+                            <input
+                                type="number"
+                                value={bathrooms}
+                                onChange={(e) => setBathrooms(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="1"
+                                min="1"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Check-in Time</label>
+                            <input
+                                type="time"
+                                value={checkInTime}
+                                onChange={(e) => setCheckInTime(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Check-out Time</label>
+                            <input
+                                type="time"
+                                value={checkOutTime}
+                                onChange={(e) => setCheckOutTime(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-6">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={hasPool}
+                                onChange={(e) => setHasPool(e.target.checked)}
+                                className="rounded border-neutral-300 text-primary focus:ring-primary h-5 w-5"
+                            />
+                            <span>Swimming Pool</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={hasWasher}
+                                onChange={(e) => setHasWasher(e.target.checked)}
+                                className="rounded border-neutral-300 text-primary focus:ring-primary h-5 w-5"
+                            />
+                            <span>Washing Machine</span>
+                        </label>
+                    </div>
+                </div>
+
                 {/* Pricing Section */}
                 <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                     <h2 className="text-xl font-semibold mb-4">Pricing</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
                             <label className="block text-sm font-medium mb-1">Price per Night ($)</label>
                             <input
@@ -197,6 +289,29 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                                 className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                                 placeholder="0"
                                 min="0"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Cleaning Fee ($)</label>
+                            <input
+                                type="number"
+                                value={cleaningFee}
+                                onChange={(e) => setCleaningFee(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="0"
+                                min="0"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Number of Beds</label>
+                            <input
+                                type="number"
+                                value={beds}
+                                onChange={(e) => setBeds(e.target.value)}
+                                className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                                placeholder="1"
+                                min="1"
                                 required
                             />
                         </div>

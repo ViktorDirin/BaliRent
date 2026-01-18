@@ -29,6 +29,14 @@ model Apartment {
   hasWifi       Boolean  @default(true)
   hasKitchen    Boolean  @default(false)
   images        String?
+  address       String?
+  city          String   @default("Canggu")
+  bathrooms     Int      @default(1)
+  hasPool       Boolean  @default(false)
+  hasWasher     Boolean  @default(false)
+  checkInTime   String   @default("14:00")
+  checkOutTime  String   @default("11:00")
+  cleaningFee   Float    @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
