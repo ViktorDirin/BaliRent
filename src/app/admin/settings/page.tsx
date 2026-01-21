@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { Save, Loader2 } from "lucide-react";
+import { updateSettings, getSettings } from "@/lib/actions";
 
 interface Settings {
     siteName: string;
     email: string;
     phone: string;
     address: string;
-    facebook: string;
-    instagram: string;
+    facebook_url: string;
+    instagram_url: string;
+    twitter_url: string;
     cleaningFee: number;
     taxRate: number;
 }
@@ -23,8 +25,9 @@ export default function SettingsPage() {
         email: "",
         phone: "",
         address: "",
-        facebook: "",
-        instagram: "",
+        facebook_url: "",
+        instagram_url: "",
+        twitter_url: "",
         cleaningFee: 0,
         taxRate: 0,
     });
@@ -32,15 +35,42 @@ export default function SettingsPage() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const response = await fetch('/api/settings');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.value) {
-                        const parsedSettings = JSON.parse(data.value);
-                        // Merge parsed settings with default state to ensure all fields exist
-                        setSettings(prev => ({ ...prev, ...parsedSettings }));
+                const data = await getSettings();
+                console.log("Fetched Settings:", data);
+
+                let loadedSettings: Partial<Settings> = {};
+
+                // Legacy support: extract from 'general' JSON if it exists
+                if (data.general) {
+                    try {
+                        const general = JSON.parse(data.general);
+                        loadedSettings = {
+                            siteName: general.siteName,
+                            email: general.email,
+                            phone: general.phone,
+                            address: general.address,
+                            facebook_url: general.facebook, // Map legacy key
+                            instagram_url: general.instagram, // Map legacy key
+                            cleaningFee: general.cleaningFee,
+                            taxRate: general.taxRate
+                        };
+                    } catch (e) {
+                        console.error("Error parsing legacy settings:", e);
                     }
                 }
+
+                // Override with new individual keys if they exist
+                if (data.siteName) loadedSettings.siteName = data.siteName;
+                if (data.email) loadedSettings.email = data.email;
+                if (data.phone) loadedSettings.phone = data.phone;
+                if (data.address) loadedSettings.address = data.address;
+                if (data.facebook_url) loadedSettings.facebook_url = data.facebook_url;
+                if (data.instagram_url) loadedSettings.instagram_url = data.instagram_url;
+                if (data.twitter_url) loadedSettings.twitter_url = data.twitter_url;
+                if (data.cleaningFee) loadedSettings.cleaningFee = Number(data.cleaningFee);
+                if (data.taxRate) loadedSettings.taxRate = Number(data.taxRate);
+
+                setSettings(prev => ({ ...prev, ...loadedSettings }));
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
             } finally {
@@ -57,17 +87,8 @@ export default function SettingsPage() {
         setMessage(null);
 
         try {
-            const response = await fetch('/api/settings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(settings),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save settings');
-            }
+            // We pass the settings object directly. The server action will handle upserting each key.
+            await updateSettings(settings);
 
             setMessage({ type: 'success', text: 'Settings saved successfully' });
         } catch (error) {
@@ -179,8 +200,8 @@ export default function SettingsPage() {
                         <label className="block text-sm font-medium mb-2">Facebook URL</label>
                         <input
                             type="url"
-                            value={settings.facebook}
-                            onChange={(e) => setSettings({ ...settings, facebook: e.target.value })}
+                            value={settings.facebook_url}
+                            onChange={(e) => setSettings({ ...settings, facebook_url: e.target.value })}
                             placeholder="https://facebook.com/yourpage"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
@@ -190,9 +211,20 @@ export default function SettingsPage() {
                         <label className="block text-sm font-medium mb-2">Instagram URL</label>
                         <input
                             type="url"
-                            value={settings.instagram}
-                            onChange={(e) => setSettings({ ...settings, instagram: e.target.value })}
+                            value={settings.instagram_url}
+                            onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
                             placeholder="https://instagram.com/yourpage"
+                            className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-2">X (Twitter) URL</label>
+                        <input
+                            type="url"
+                            value={settings.twitter_url}
+                            onChange={(e) => setSettings({ ...settings, twitter_url: e.target.value })}
+                            placeholder="https://x.com/yourpage"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>

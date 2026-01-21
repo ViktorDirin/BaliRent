@@ -2,6 +2,52 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
+
+export async function getSettings() {
+    try {
+        const settings = await prisma.settings.findMany();
+        const settingsMap: Record<string, any> = {};
+
+        settings.forEach(setting => {
+            // Try to parse numbers or booleans if possible, otherwise use string
+            if (setting.key === 'cleaningFee' || setting.key === 'taxRate') {
+                settingsMap[setting.key] = parseFloat(setting.value);
+            } else {
+                settingsMap[setting.key] = setting.value;
+            }
+        });
+
+        return settingsMap;
+    } catch (error) {
+        console.error("Error fetching settings:", error);
+        return {};
+    }
+}
+
+export async function updateSettings(settings: Record<string, any>) {
+    try {
+        const updates = Object.entries(settings).map(([key, value]) => {
+            // Convert value to string for storage
+            const stringValue = String(value);
+            return prisma.settings.upsert({
+                where: { key },
+                update: { value: stringValue },
+                create: { key, value: stringValue }
+            });
+        });
+
+        await Promise.all(updates);
+        revalidatePath('/admin/settings');
+        revalidatePath('/contact'); // Revalidate potential public pages using these settings
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating settings:", error);
+        throw error;
+    }
+}
+
+
 export async function createApartment(formData: FormData) {
     try {
         const title = formData.get('title') as string
