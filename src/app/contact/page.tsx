@@ -1,7 +1,14 @@
 import { CONTACT_INFO } from "@/lib/constants";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { getSettings } from "@/lib/actions";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+    const settings = await getSettings();
+
+    const address = settings.address || CONTACT_INFO.address;
+    const phone = settings.phone || CONTACT_INFO.phone;
+    const email = settings.email || CONTACT_INFO.email;
+
     return (
         <div className="min-h-screen bg-neutral-950 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -24,7 +31,7 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-white font-medium text-lg">Phone</h3>
-                                <p className="text-neutral-400">{CONTACT_INFO.phone}</p>
+                                <p className="text-neutral-400">{phone}</p>
                             </div>
                         </div>
 
@@ -34,7 +41,7 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-white font-medium text-lg">Email</h3>
-                                <p className="text-neutral-400">{CONTACT_INFO.email}</p>
+                                <p className="text-neutral-400">{email}</p>
                             </div>
                         </div>
 
@@ -44,7 +51,7 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-white font-medium text-lg">Location</h3>
-                                <p className="text-neutral-400">{CONTACT_INFO.address}</p>
+                                <p className="text-neutral-400">{address}</p>
                             </div>
                         </div>
                     </div>

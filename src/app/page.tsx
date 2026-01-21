@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ArrowRight, Star } from "lucide-react";
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -25,7 +23,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-950 font-sans text-neutral-100 flex flex-col">
-      <Navbar />
+
 
       {/* Hero Section */}
       <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
@@ -75,7 +73,7 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {featuredProperties.map((property) => {
             // Parse images safely
-            let displayImage = "/placeholder.jpg";
+            let displayImage = null;
             try {
               if (property.images) {
                 const parsed = JSON.parse(property.images);
@@ -91,6 +89,9 @@ export default async function Home() {
               }
             }
 
+            const hasImage = !!displayImage;
+            const bgImage = displayImage || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1000&auto=format&fit=crop";
+
             return (
               <Link
                 href={`/apartments/${property.slug}`}
@@ -99,10 +100,19 @@ export default async function Home() {
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-neutral-800">
                   <img
-                    src={displayImage}
+                    src={bgImage}
                     alt={property.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!hasImage ? 'opacity-40 grayscale' : ''}`}
                   />
+
+                  {!hasImage && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-lg">
+                        <span className="text-white/80 font-serif tracking-wide text-sm">Photo Coming Soon</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
                     <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                     <span className="text-xs font-semibold text-white">5.0</span>
@@ -138,8 +148,7 @@ export default async function Home() {
           </Link>
         </div>
       </section>
-
-      <Footer />
     </div>
+
   );
 }

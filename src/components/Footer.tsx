@@ -17,6 +17,11 @@ export default async function Footer() {
         { icon: Twitter, href: twitterUrl, label: "Twitter" },
     ];
 
+    const siteName = settings.siteName || "BaliRent";
+    const address = settings.address || CONTACT_INFO.address;
+    const phone = settings.phone || CONTACT_INFO.phone;
+    const email = settings.email || CONTACT_INFO.email;
+
     return (
         <footer className="bg-neutral-900 text-white pt-16 pb-8 border-t border-white/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,20 +29,20 @@ export default async function Footer() {
                     {/* Brand & Contact */}
                     <div>
                         <Link href="/" className="text-2xl font-serif font-bold text-primary block mb-6">
-                            BaliRent
+                            {siteName}
                         </Link>
                         <div className="space-y-4 text-gray-400">
                             <div className="flex items-start gap-3">
                                 <MapPin className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                                <p>{CONTACT_INFO.address}</p>
+                                <p>{address}</p>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Phone className="h-5 w-5 text-primary flex-shrink-0" />
-                                <p>{CONTACT_INFO.phone}</p>
+                                <p>{phone}</p>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
-                                <p>{CONTACT_INFO.email}</p>
+                                <p>{email}</p>
                             </div>
                         </div>
                     </div>

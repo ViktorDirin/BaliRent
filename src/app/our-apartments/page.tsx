@@ -47,7 +47,7 @@ export default async function OurApartmentsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
                         {apartments.map((apartment) => {
                             // Parse images safely
-                            let displayImage = "/placeholder.jpg";
+                            let displayImage = null;
                             try {
                                 if (apartment.images) {
                                     const parsed = JSON.parse(apartment.images);
@@ -63,6 +63,11 @@ export default async function OurApartmentsPage() {
                                 }
                             }
 
+                            const hasImage = !!displayImage;
+                            // High-quality dark interior placeholder
+                            const bgImage = displayImage || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1000&auto=format&fit=crop";
+
+
                             return (
                                 <Link
                                     href={`/apartments/${apartment.slug}`}
@@ -72,10 +77,19 @@ export default async function OurApartmentsPage() {
                                     {/* Image Container */}
                                     <div className="relative aspect-[4/3] overflow-hidden bg-neutral-800">
                                         <img
-                                            src={displayImage}
+                                            src={bgImage}
                                             alt={apartment.title}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${!hasImage ? 'opacity-40 grayscale' : ''}`}
                                         />
+
+                                        {!hasImage && (
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="bg-black/40 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-lg">
+                                                    <span className="text-white/80 font-serif tracking-wide text-sm">Photo Coming Soon</span>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Price Tag */}
                                         <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
                                             <span className="text-white font-semibold">

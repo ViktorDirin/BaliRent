@@ -1,233 +1,203 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Calendar, User, ChevronDown } from 'lucide-react';
+import { useState } from "react";
+import { Calendar, Star, CheckCircle, Loader2 } from "lucide-react";
+import { createBooking } from "@/lib/actions";
 
 interface BookingFormProps {
-    pricePerNight: number;
-    serviceFee: number;
     apartmentId: string;
+    pricePerNight: number;
+    cleaningFee: number;
 }
 
-export default function BookingForm({ pricePerNight, serviceFee, apartmentId }: BookingFormProps) {
-    const [checkInDate, setCheckInDate] = useState<string>('');
-    const [checkOutDate, setCheckOutDate] = useState<string>('');
-    const [guests, setGuests] = useState<number>(1);
-    const [settings, setSettings] = useState({ cleaningFee: 0, taxRate: 0 });
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }: BookingFormProps) {
+    // Simple state for demo purposes. In production use a real calendar library.
+    // Default to "tomorrow" and "3 days later"
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const threeDaysLater = new Date(tomorrow);
+    threeDaysLater.setDate(threeDaysLater.getDate() + 3);
 
-    useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const response = await fetch('/api/settings');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.value) {
-                        const parsedSettings = JSON.parse(data.value);
-                        setSettings({
-                            cleaningFee: parsedSettings.cleaningFee || 0,
-                            taxRate: parsedSettings.taxRate || 0
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch settings:", error);
-            }
-        };
+    const [startDate, setStartDate] = useState<string>(tomorrow.toISOString().split('T')[0]);
+    const [endDate, setEndDate] = useState<string>(threeDaysLater.toISOString().split('T')[0]);
+    const [guests, setGuests] = useState(2);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [bookingSuccess, setBookingSuccess] = useState(false);
 
-        fetchSettings();
-    }, []);
+    // Guest details needed for the new booking implementation
+    const [guestName, setGuestName] = useState("");
+    const [guestEmail, setGuestEmail] = useState("");
 
-    // Calculate number of nights between two dates
-    const calculateNights = (start: string, end: string): number => {
-        if (!start || !end) return 0;
+    // Calculate nights
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const nights = Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)));
+    const accommodationTotal = pricePerNight * nights;
+    const total = accommodationTotal + cleaningFee;
 
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        // Validate dates
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 0;
-
-        // Calculate difference in milliseconds
-        const diffTime = endDate.getTime() - startDate.getTime();
-
-        // Convert to days (1000ms * 60s * 60m * 24h)
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-        return diffDays > 0 ? diffDays : 0;
-    };
-
-    const numberOfNights = calculateNights(checkInDate, checkOutDate);
-    const subtotal = pricePerNight * numberOfNights;
-    const taxAmount = (subtotal * settings.taxRate) / 100;
-    const totalPrice = numberOfNights > 0 ? subtotal + serviceFee + settings.cleaningFee + taxAmount : 0;
-
-    const handleBookingSubmit = async (e: React.FormEvent) => {
+    const handleBooking = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage(null);
-
-        if (numberOfNights <= 0) {
-            setMessage({ type: 'error', text: 'Please select valid dates.' });
-            return;
-        }
-
-        const payload = {
-            apartmentId,
-            checkInDate,
-            checkOutDate,
-            guests,
-            totalPrice: totalPrice.toFixed(2),
-            customerName: 'Test User',
-            customerEmail: 'test@example.com'
-        };
-
+        setIsSubmitting(true);
         try {
-            const response = await fetch('/api/bookings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
+            await createBooking({
+                apartmentId,
+                startDate: new Date(startDate),
+                endDate: new Date(endDate),
+                guestName,
+                guestEmail,
+                totalPrice: total
             });
-
-            if (response.ok) {
-                setMessage({ type: 'success', text: 'Booking created successfully!' });
-                setCheckInDate('');
-                setCheckOutDate('');
-                setGuests(1);
-            } else {
-                const data = await response.json();
-                setMessage({ type: 'error', text: data.error || 'Failed to create booking' });
-            }
+            setBookingSuccess(true);
         } catch (error) {
-            setMessage({ type: 'error', text: 'An unexpected error occurred.' });
+            console.error(error);
+            alert("Booking failed. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
+    if (bookingSuccess) {
+        return (
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-8 shadow-xl text-center animate-fade-in-up">
+                <div className="mx-auto bg-green-500/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-500" />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-white mb-2">Booking Confirmed!</h3>
+                <p className="text-neutral-400 mb-6">
+                    Thank you {guestName}! Your stay for {nights} nights has been reserved.
+                </p>
+                <div className="bg-neutral-950 p-4 rounded-lg mb-6 text-left border border-neutral-800">
+                    <p className="text-sm text-neutral-500 mb-1">Total Paid</p>
+                    <p className="text-xl font-bold text-white">${total}</p>
+                </div>
+                <button
+                    onClick={() => setBookingSuccess(false)}
+                    className="text-primary hover:text-primary/80 font-medium"
+                >
+                    Make another booking
+                </button>
+            </div>
+        );
+    }
 
     return (
-        <form
-            onSubmit={handleBookingSubmit}
-            className="bg-background border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl p-6 sticky top-24"
-        >
-            {/* Header Section */}
-            <div className="mb-6">
-                <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-serif font-bold text-foreground">${pricePerNight}</span>
-                    <span className="text-muted-foreground">/ night</span>
+        <div className="sticky top-24 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl shadow-black/50">
+            <div className="flex justify-between items-center mb-6 pb-6 border-b border-neutral-800">
+                <div>
+                    <span className="text-2xl font-bold text-white">${pricePerNight}</span>
+                    <span className="text-neutral-400"> / night</span>
+                </div>
+                <div className="flex items-center gap-1 text-sm">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <span className="font-medium text-white">5.0</span>
+                    <span className="text-neutral-500">(New)</span>
                 </div>
             </div>
 
-            {/* Booking Inputs */}
-            <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg mb-4 overflow-hidden">
-                {/* Dates Section */}
-                <div className="flex border-b border-neutral-200 dark:border-neutral-800">
-                    <div className="w-1/2 p-3 border-r border-neutral-200 dark:border-neutral-800 hover:bg-muted/50 transition-colors cursor-pointer relative">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-1">
-                            Check-In
-                        </label>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Calendar className="w-4 h-4 absolute left-3 bottom-3.5 pointer-events-none" />
-                            <input
-                                type="date"
-                                value={checkInDate}
-                                onChange={(e) => setCheckInDate(e.target.value)}
-                                className="w-full bg-transparent text-sm pl-6 focus:outline-none cursor-pointer"
-                                placeholder="Add date"
-                            />
+            <form onSubmit={handleBooking}>
+                <div className="space-y-4 mb-6">
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
+                            <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Check-in</label>
+                            <div className="flex items-center gap-2 text-neutral-300">
+                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2" />
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-white appearance-none"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
+                            <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Check-out</label>
+                            <div className="flex items-center gap-2 text-neutral-300">
+                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2" />
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    min={startDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-white appearance-none"
+                                    required
+                                />
+                            </div>
                         </div>
                     </div>
-                    <div className="w-1/2 p-3 hover:bg-muted/50 transition-colors cursor-pointer relative">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-1">
-                            Check-Out
-                        </label>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Calendar className="w-4 h-4 absolute left-3 bottom-3.5 pointer-events-none" />
-                            <input
-                                type="date"
-                                value={checkOutDate}
-                                min={checkInDate}
-                                onChange={(e) => setCheckOutDate(e.target.value)}
-                                className="w-full bg-transparent text-sm pl-6 focus:outline-none cursor-pointer"
-                                placeholder="Add date"
-                            />
-                        </div>
+
+                    <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
+                        <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Guests</label>
+                        <input
+                            type="number"
+                            min={1}
+                            max={10}
+                            value={guests}
+                            onChange={(e) => setGuests(parseInt(e.target.value))}
+                            className="bg-transparent w-full text-sm focus:outline-none text-white"
+                        />
+                    </div>
+
+                    {/* Guest Contact Info */}
+                    <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
+                        <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Full Name</label>
+                        <input
+                            type="text"
+                            value={guestName}
+                            onChange={(e) => setGuestName(e.target.value)}
+                            className="bg-transparent w-full text-sm focus:outline-none text-white placeholder-neutral-600"
+                            placeholder="Your Name"
+                            required
+                        />
+                    </div>
+                    <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
+                        <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Email</label>
+                        <input
+                            type="email"
+                            value={guestEmail}
+                            onChange={(e) => setGuestEmail(e.target.value)}
+                            className="bg-transparent w-full text-sm focus:outline-none text-white placeholder-neutral-600"
+                            placeholder="your@email.com"
+                            required
+                        />
                     </div>
                 </div>
 
-                {/* Guests Section */}
-                <div className="p-3 hover:bg-muted/50 transition-colors cursor-pointer relative">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-1">
-                        Guests
-                    </label>
-                    <div className="flex items-center justify-between text-foreground">
-                        <div className="flex items-center gap-2 w-full">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <input
-                                type="number"
-                                min="1"
-                                value={guests}
-                                onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
-                                className="w-full bg-transparent text-sm focus:outline-none"
-                            />
-                        </div>
-                        <ChevronDown className="w-4 h-4 text-muted-foreground pointer-events-none" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Message Display */}
-            {message && (
-                <div className={`p-3 rounded-lg mb-4 text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                    {message.text}
-                </div>
-            )}
-
-            {/* Action Button */}
-            <button
-                type="submit"
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-lg font-medium hover:opacity-90 transition-opacity mb-6"
-            >
-                Reserve
-            </button>
-
-            {/* Price Breakdown */}
-            {numberOfNights > 0 && totalPrice > 0 && (
-                <div className="space-y-3 text-sm text-muted-foreground animate-in fade-in slide-in-from-top-2">
+                <div className="mb-6 space-y-3 text-neutral-400 text-sm">
                     <div className="flex justify-between">
-                        <span className="underline decoration-dotted underline-offset-2">
-                            ${pricePerNight} x {numberOfNights} nights
-                        </span>
-                        <span className="text-foreground">${subtotal}</span>
+                        <span>${pricePerNight} x {nights} nights</span>
+                        <span>${accommodationTotal}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="underline decoration-dotted underline-offset-2">
-                            Service fee
-                        </span>
-                        <span className="text-foreground">${serviceFee}</span>
+                        <span>Cleaning Fee</span>
+                        <span>${cleaningFee}</span>
                     </div>
-                    {settings.cleaningFee > 0 && (
-                        <div className="flex justify-between">
-                            <span className="underline decoration-dotted underline-offset-2">
-                                Cleaning fee
-                            </span>
-                            <span className="text-foreground">${settings.cleaningFee}</span>
-                        </div>
-                    )}
-                    {settings.taxRate > 0 && (
-                        <div className="flex justify-between">
-                            <span className="underline decoration-dotted underline-offset-2">
-                                Tax ({settings.taxRate}%)
-                            </span>
-                            <span className="text-foreground">${taxAmount.toFixed(2)}</span>
-                        </div>
-                    )}
-
-                    <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4 mt-4 flex justify-between font-bold text-foreground text-base">
+                    <div className="flex justify-between pt-3 border-t border-neutral-800 font-semibold text-white text-base">
                         <span>Total</span>
-                        <span>${totalPrice.toFixed(2)}</span>
+                        <span>${total}</span>
                     </div>
                 </div>
-            )}
-        </form>
+
+                <button
+                    type="submit"
+                    disabled={isSubmitting || nights <= 0}
+                    className="w-full bg-amber-500 text-black font-bold py-4 rounded-lg hover:bg-amber-400 transition-colors mb-4 transform active:scale-[0.98] duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                >
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Processing...
+                        </>
+                    ) : (
+                        "Confirm Booking"
+                    )}
+                </button>
+
+                <p className="text-center text-neutral-500 text-sm">
+                    You won&apos;t be charged yet
+                </p>
+            </form>
+        </div>
     );
 }

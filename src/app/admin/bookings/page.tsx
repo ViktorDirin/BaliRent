@@ -1,129 +1,124 @@
-import { Calendar as CalendarIcon, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { format } from "date-fns";
+import { prisma } from "@/lib/prisma";
+import { Calendar, CheckCircle, Clock, XCircle, Search, Filter } from "lucide-react";
+import BookingActions from "@/components/BookingActions";
 
-interface Booking {
-    id: string;
-    startDate: string;
-    endDate: string;
-    totalPrice: string;
-    status: string;
-    customerName: string | null;
-    apartment: {
-        title: string;
-    };
-}
+export const dynamic = "force-dynamic";
 
 async function getBookings() {
+    // ... existing getBookings function
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-        const res = await fetch(`${baseUrl}/api/bookings`, {
-            cache: "no-store",
+        const bookings = await prisma.booking.findMany({
+            include: {
+                apartment: true, // Include apartment details
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
         });
-
-        if (!res.ok) {
-            throw new Error("Failed to fetch bookings");
-        }
-
-        return res.json();
+        return bookings;
     } catch (error) {
-        console.error("Error loading bookings:", error);
+        console.error("Failed to fetch bookings:", error);
         return [];
     }
 }
 
-export default async function BookingsPage() {
-    const bookings: Booking[] = await getBookings();
-
-    const formatDate = (dateString: string) => {
-        try {
-            return format(new Date(dateString), "MMM d, yyyy");
-        } catch (e) {
-            return dateString;
-        }
-    };
-
-    const formatCurrency = (amount: string) => {
-        const num = parseFloat(amount);
-        return isNaN(num) ? amount : `$${num.toFixed(2)}`;
-    };
+export default async function AdminBookingsPage() {
+    const bookings = await getBookings();
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-8">
+            {/* ... Header ... */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Bookings</h1>
-                    <p className="text-muted-foreground">Manage reservations and availability</p>
+                    <p className="text-muted-foreground">Manage your property reservations</p>
                 </div>
-                {/* 
-                <button className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                    <Plus className="h-5 w-5" />
-                    New Booking
-                </button> 
-                */}
+                <div className="flex gap-2">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <input
+                            type="text"
+                            placeholder="Search bookings..."
+                            className="pl-9 pr-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full md:w-64"
+                        />
+                    </div>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+                        <Filter className="h-4 w-4" />
+                        <span className="text-sm">Filter</span>
+                    </button>
+                </div>
             </div>
 
-            {bookings.length === 0 ? (
-                <div className="bg-white dark:bg-neutral-900 p-12 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 text-center">
-                    <CalendarIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-bold mb-2">No bookings yet</h3>
-                    <p className="text-muted-foreground mb-6">Bookings will appear here when customers make reservations</p>
-                </div>
-            ) : (
-                <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead>
+                            <tr className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-800">
+                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">Apartment</th>
+                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">Guest</th>
+                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">Dates</th>
+                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">Total</th>
+                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">Status</th>
+                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                            {bookings.length === 0 ? (
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Customer</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Apartment</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Check-in</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Check-out</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                                        No bookings found.
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                                {bookings.map((booking) => (
+                            ) : (
+                                bookings.map((booking) => (
                                     <tr key={booking.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-medium text-foreground">{booking.customerName || "Guest"}</div>
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-neutral-900 dark:text-white">{booking.apartment.title}</div>
+                                            <div className="text-xs text-muted-foreground">{booking.apartment.location}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-foreground">{booking.apartment?.title || "Unknown Property"}</div>
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-neutral-900 dark:text-white">{booking.guestName}</div>
+                                            <div className="text-xs text-muted-foreground">{booking.guestEmail}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                            {formatDate(booking.startDate)}
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
+                                                    <Calendar className="h-3 w-3" />
+                                                    <span>
+                                                        {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    {Math.ceil((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                            {formatDate(booking.endDate)}
+                                        <td className="px-6 py-4">
+                                            <span className="font-medium font-serif">${booking.totalPrice.toLocaleString()}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap font-medium text-foreground">
-                                            {formatCurrency(booking.totalPrice)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                ${booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
-                                                ${booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : ''}
-                                                ${booking.status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
-                                                ${!['PENDING', 'CONFIRMED', 'CANCELLED'].includes(booking.status) ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400' : ''}
-                                            `}>
-                                                {booking.status}
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${booking.status === 'confirmed'
+                                                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900'
+                                                : booking.status === 'pending'
+                                                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-900'
+                                                    : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900'
+                                                }`}>
+                                                {booking.status === 'confirmed' && <CheckCircle className="h-3 w-3" />}
+                                                {booking.status === 'pending' && <Clock className="h-3 w-3" />}
+                                                {booking.status === 'cancelled' && <XCircle className="h-3 w-3" />}
+                                                <span className="capitalize">{booking.status}</span>
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                            <button className="text-muted-foreground hover:text-foreground transition-colors" title="Manage Booking">
-                                                <MoreHorizontal className="w-5 h-5" />
-                                            </button>
+                                        <td className="px-6 py-4 text-right">
+                                            <BookingActions id={booking.id} status={booking.status} />
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

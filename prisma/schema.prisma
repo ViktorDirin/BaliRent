@@ -39,14 +39,19 @@ model Apartment {
   cleaningFee   Float    @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  bookings      Booking[]
 }
 
 model Booking {
   id          String   @id @default(uuid())
   apartmentId String
-  userId      String
+  apartment   Apartment @relation(fields: [apartmentId], references: [id])
+  userId      String?   // Optional: link to registered user if exists
+  guestName   String    // For guest checkout
+  guestEmail  String
   startDate   DateTime
   endDate     DateTime
+  totalPrice  Float
   status      String   @default("pending")
   createdAt   DateTime @default(now())
 }

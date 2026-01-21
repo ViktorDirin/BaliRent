@@ -38,8 +38,8 @@ export async function updateSettings(settings: Record<string, any>) {
 
         await Promise.all(updates);
         revalidatePath('/admin/settings');
-        revalidatePath('/contact'); // Revalidate potential public pages using these settings
-        revalidatePath('/');
+        revalidatePath('/contact');
+        revalidatePath('/', 'layout');
         return { success: true };
     } catch (error) {
         console.error("Error updating settings:", error);
@@ -91,5 +91,128 @@ export async function createApartment(formData: FormData) {
     } catch (error) {
         console.error("Prisma Error in createApartment:", error)
         throw error
+    }
+}
+
+export async function createBooking(data: {
+    apartmentId: string;
+    startDate: Date;
+    endDate: Date;
+    guestName: string;
+    guestEmail: string;
+    totalPrice: number;
+}) {
+    try {
+        await prisma.booking.create({
+            data: {
+                apartmentId: data.apartmentId,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                guestName: data.guestName,
+                guestEmail: data.guestEmail,
+                totalPrice: data.totalPrice,
+                status: 'pending'
+            }
+        });
+        revalidatePath('/admin/bookings');
+        return { success: true };
+    } catch (error) {
+        console.error("Error creating booking:", error);
+    }
+}
+
+export async function updateBookingStatus(id: string, status: string) {
+    try {
+        await prisma.booking.update({
+            where: { id },
+            data: { status }
+        });
+        revalidatePath('/admin/bookings');
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating booking status:", error);
+    }
+}
+
+export async function seedApartments() {
+    try {
+        const apartments = [
+            {
+                title: "Villa Sawah Retreat",
+                description: "Escape to the tranquil rice fields of Ubud in this stunning open-air villa. Featuring a private infinity pool overlooking the lush greenery, this 3-bedroom retreat offers the perfect blend of luxury and nature. Enjoy daily yoga sessions on the deck and authentic Balinese cuisine prepared by our in-house chef.",
+                pricePerNight: 250,
+                location: "Ubud",
+                bedrooms: 3,
+                bathrooms: 3,
+                amenities: { hasWifi: true, hasPool: true, hasAirCon: true, hasKitchen: true, hasWasher: true },
+                images: ["https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=2070&auto=format&fit=crop"]
+            },
+            {
+                title: "Oceanfront Cliffside Villa",
+                description: "Perched on the dramatic cliffs of Uluwatu, this modern architectural masterpiece offers breathtaking panoramic ocean views. Watch the sunset from your private pool or walk down to the pristine white sand beach below. Includes a state-of-the-art media room and a full staff to cater to your every need.",
+                pricePerNight: 550,
+                location: "Uluwatu",
+                bedrooms: 4,
+                bathrooms: 4,
+                amenities: { hasWifi: true, hasPool: true, hasAirCon: true, hasKitchen: true, hasWasher: true },
+                images: ["https://images.unsplash.com/photo-1499955085172-a104c9463ece?q=80&w=2070&auto=format&fit=crop"]
+            },
+            {
+                title: "Minimalist Loft Canggu",
+                description: "Stay in the heart of the action in this stylish, industrial-chic loft in Canggu. Just steps away from the best cafes, beach clubs, and surf spots. The loft features high ceilings, polished concrete floors, and a rooftop terrace perfect for evening cocktails.",
+                pricePerNight: 120,
+                location: "Canggu",
+                bedrooms: 1,
+                bathrooms: 1,
+                amenities: { hasWifi: true, hasPool: false, hasAirCon: true, hasKitchen: true, hasWasher: false },
+                images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=2069&auto=format&fit=crop"]
+            },
+            {
+                title: "Tropical Garden Oasis",
+                description: "Hidden away in a quiet lane in Seminyak, this charming villa is surrounded by a lush tropical garden. The layout centers around a sparkling pool, creating a private sanctuary. Each bedroom has an en-suite outdoor bathroom for a true island experience.",
+                pricePerNight: 180,
+                location: "Seminyak",
+                bedrooms: 2,
+                bathrooms: 2,
+                amenities: { hasWifi: true, hasPool: true, hasAirCon: true, hasKitchen: true, hasWasher: true },
+                images: ["https://images.unsplash.com/photo-1576013551627-5cc20b3285f9?q=80&w=2064&auto=format&fit=crop"]
+            },
+            {
+                title: "Luxury Beachfront Penthouse",
+                description: "Experience the height of luxury in this sprawling penthouse overlooking Nusa Dua beach. Featuring direct elevator access, a private jacuzzi on the balcony, and five-star resort amenities including gym access and concierge service.",
+                pricePerNight: 400,
+                location: "Nusa Dua",
+                bedrooms: 2,
+                bathrooms: 2,
+                amenities: { hasWifi: true, hasPool: true, hasAirCon: true, hasKitchen: true, hasWasher: true },
+                images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=2073&auto=format&fit=crop"]
+            }
+        ];
+
+        for (const apt of apartments) {
+            const slug = apt.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now() + Math.floor(Math.random() * 1000);
+
+            await prisma.apartment.create({
+                data: {
+                    title: apt.title,
+                    description: apt.description,
+                    pricePerNight: apt.pricePerNight,
+                    location: apt.location || "Bali",
+                    bedrooms: apt.bedrooms,
+                    bathrooms: apt.bathrooms,
+                    images: JSON.stringify(apt.images),
+                    slug: slug,
+                    city: apt.location,
+                    ...apt.amenities
+                }
+            });
+        }
+
+        revalidatePath('/our-apartments');
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error("Error seeding apartments:", error);
+        throw error;
     }
 }

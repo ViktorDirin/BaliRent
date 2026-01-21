@@ -1,3 +1,4 @@
+import BookingForm from "@/components/BookingForm";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import {
@@ -9,10 +10,9 @@ import {
   Bed,
   Bath,
   CheckCircle,
-  Calendar,
-  Star,
   Users
 } from "lucide-react";
+import { getSettings } from "@/lib/actions";
 
 // Force dynamic since we're fetching data
 export const dynamic = "force-dynamic";
@@ -34,6 +34,11 @@ async function getApartment(slug: string) {
 export default async function ApartmentDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const apartment = await getApartment(slug);
+  const settings = await getSettings();
+  // ... existing code ...
+
+  // Use dynamic cleaning fee if set in settings, otherwise fallback to apartment's fee or 0
+  const cleaningFee = typeof settings.cleaningFee === 'number' ? settings.cleaningFee : (apartment?.cleaningFee || 0);
 
   if (!apartment) {
     notFound();
@@ -95,8 +100,7 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
 
           {/* Main Content - Left Column */}
           <div className="lg:col-span-2 space-y-12">
-
-            {/* Quick Stats */}
+            {/* ... Stats, Description, Amenities, Gallery ... */}
             <div className="grid grid-cols-3 md:grid-cols-3 gap-4 p-6 bg-neutral-900 rounded-xl border border-neutral-800">
               <div className="flex flex-col items-center justify-center text-center">
                 <Users className="w-5 h-5 text-neutral-400 mb-1" />
@@ -181,66 +185,11 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
 
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl shadow-black/50">
-              <div className="flex justify-between items-center mb-6 pb-6 border-b border-neutral-800">
-                <div>
-                  <span className="text-2xl font-bold text-white">${apartment.pricePerNight}</span>
-                  <span className="text-neutral-400"> / night</span>
-                </div>
-                <div className="flex items-center gap-1 text-sm">
-                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  <span className="font-medium text-white">5.0</span>
-                  <span className="text-neutral-500">(New)</span>
-                </div>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                    <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Check-in</label>
-                    <div className="flex items-center gap-2 text-neutral-300">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm">Select Date</span>
-                    </div>
-                  </div>
-                  <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                    <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Check-out</label>
-                    <div className="flex items-center gap-2 text-neutral-300">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm">Select Date</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                  <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Guests</label>
-                  <span className="text-neutral-300 text-sm">2 guests</span>
-                </div>
-              </div>
-
-              <button className="w-full bg-amber-500 text-black font-bold py-4 rounded-lg hover:bg-amber-400 transition-colors mb-4 transform active:scale-[0.98] duration-200">
-                Confirm Booking
-              </button>
-
-              <p className="text-center text-neutral-500 text-sm">
-                You won&apos;t be charged yet
-              </p>
-
-              <div className="mt-6 space-y-3 text-neutral-400 text-sm">
-                <div className="flex justify-between">
-                  <span>${apartment.pricePerNight} x 5 nights</span>
-                  <span>${apartment.pricePerNight * 5}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Cleaning Fee</span>
-                  <span>${apartment.cleaningFee}</span>
-                </div>
-                <div className="flex justify-between pt-3 border-t border-neutral-800 font-semibold text-white text-base">
-                  <span>Total</span>
-                  <span>${(apartment.pricePerNight * 5) + apartment.cleaningFee}</span>
-                </div>
-              </div>
-            </div>
+            <BookingForm
+              apartmentId={apartment.id}
+              pricePerNight={apartment.pricePerNight}
+              cleaningFee={cleaningFee}
+            />
           </div>
 
         </div>

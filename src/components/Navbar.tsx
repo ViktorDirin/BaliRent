@@ -27,7 +27,7 @@ export default function Navbar() {
                             <Link href="/contact" className="text-white hover:text-[#D4AF37] transition-colors px-3 py-2 text-sm font-medium uppercase tracking-wide">
                                 CONTACT
                             </Link>
-                            <Link href="/reserve" className="bg-[#D4AF37] hover:bg-[#B8960C] text-black px-6 py-2 rounded-sm uppercase text-sm font-bold transition-colors tracking-wide">
+                            <Link href="/our-apartments" className="bg-[#D4AF37] hover:bg-[#B8960C] text-black px-6 py-2 rounded-sm uppercase text-sm font-bold transition-colors tracking-wide">
                                 RESERVE APARTMENT
                             </Link>
                         </div>
@@ -56,7 +56,7 @@ export default function Navbar() {
                         <Link href="/contact" className="block text-white hover:text-[#D4AF37] px-3 py-2 rounded-md text-base font-medium uppercase tracking-wide">
                             CONTACT
                         </Link>
-                        <Link href="/reserve" className="block w-full text-center bg-[#D4AF37] text-black hover:bg-[#B8960C] px-4 py-2 rounded-sm text-base font-bold mt-4 uppercase tracking-wide">
+                        <Link href="/our-apartments" className="block w-full text-center bg-[#D4AF37] text-black hover:bg-[#B8960C] px-4 py-2 rounded-sm text-base font-bold mt-4 uppercase tracking-wide">
                             RESERVE APARTMENT
                         </Link>
                     </div>

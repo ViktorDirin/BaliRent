@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   description: "Discover luxury apartments and hotels in Bali with genuine Balinese hospitality",
 };
 
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +30,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} antialiased`}
       >
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
