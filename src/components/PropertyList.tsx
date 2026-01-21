@@ -44,7 +44,7 @@ export default function PropertyList({ initialProperties }: PropertyListProps) {
             id="sort"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="px-3 py-2 bg-background border border-black/10 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {SORT_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>

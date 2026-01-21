@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #D4AF37;
+  --background: #F9F8F3;
+  --foreground: #1A1A1A;
+  --primary: #C5A059;
   --primary-foreground: #ffffff;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
+  --muted: #f0efe9;
+  --muted-foreground: #666666;
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
 }
 
 @theme inline {
@@ -20,12 +22,15 @@
   --font-serif: var(--font-playfair);
 }
 
+/* Enforce the exact same variables for dark mode to "disable" it visually */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #262626;
-    --muted-foreground: #a3a3a3;
+    --background: #F9F8F3;
+    --foreground: #1A1A1A;
+    --primary: #C5A059;
+    --primary-foreground: #ffffff;
+    --muted: #f0efe9;
+    --muted-foreground: #666666;
   }
 }
 

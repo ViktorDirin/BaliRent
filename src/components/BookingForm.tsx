@@ -59,17 +59,17 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
 
     if (bookingSuccess) {
         return (
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-8 shadow-xl text-center animate-fade-in-up">
+            <div className="bg-white border border-primary/20 rounded-xl p-8 shadow-xl text-center animate-fade-in-up">
                 <div className="mx-auto bg-green-500/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                     <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-white mb-2">Booking Confirmed!</h3>
-                <p className="text-neutral-400 mb-6">
+                <h3 className="text-2xl font-serif font-bold text-foreground mb-2">Booking Confirmed!</h3>
+                <p className="text-muted-foreground mb-6">
                     Thank you {guestName}! Your stay for {nights} nights has been reserved.
                 </p>
-                <div className="bg-neutral-950 p-4 rounded-lg mb-6 text-left border border-neutral-800">
-                    <p className="text-sm text-neutral-500 mb-1">Total Paid</p>
-                    <p className="text-xl font-bold text-white">${total}</p>
+                <div className="bg-muted p-4 rounded-lg mb-6 text-left border border-black/5">
+                    <p className="text-sm text-muted-foreground mb-1">Total Paid</p>
+                    <p className="text-xl font-bold text-foreground">${total}</p>
                 </div>
                 <button
                     onClick={() => setBookingSuccess(false)}
@@ -82,89 +82,89 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
     }
 
     return (
-        <div className="sticky top-24 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl shadow-black/50">
-            <div className="flex justify-between items-center mb-6 pb-6 border-b border-neutral-800">
+        <div className="sticky top-24 bg-white border border-primary/30 rounded-xl p-6 shadow-xl shadow-black/5">
+            <div className="flex justify-between items-center mb-6 pb-6 border-b border-black/5">
                 <div>
-                    <span className="text-2xl font-bold text-white">${pricePerNight}</span>
-                    <span className="text-neutral-400"> / night</span>
+                    <span className="text-2xl font-bold text-foreground">${pricePerNight}</span>
+                    <span className="text-muted-foreground"> / night</span>
                 </div>
                 <div className="flex items-center gap-1 text-sm">
-                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                    <span className="font-medium text-white">5.0</span>
-                    <span className="text-neutral-500">(New)</span>
+                    <Star className="w-4 h-4 text-primary fill-primary" />
+                    <span className="font-medium text-foreground">5.0</span>
+                    <span className="text-muted-foreground">(New)</span>
                 </div>
             </div>
 
             <form onSubmit={handleBooking}>
                 <div className="space-y-4 mb-6">
                     <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                            <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Check-in</label>
-                            <div className="flex items-center gap-2 text-neutral-300">
-                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2" />
+                        <div className="bg-muted border border-black/5 rounded-lg p-3">
+                            <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Check-in</label>
+                            <div className="flex items-center gap-2 text-foreground">
+                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2 text-muted-foreground" />
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-white appearance-none"
+                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-foreground appearance-none"
                                     required
                                 />
                             </div>
                         </div>
-                        <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                            <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Check-out</label>
-                            <div className="flex items-center gap-2 text-neutral-300">
-                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2" />
+                        <div className="bg-muted border border-black/5 rounded-lg p-3">
+                            <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Check-out</label>
+                            <div className="flex items-center gap-2 text-foreground">
+                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2 text-muted-foreground" />
                                 <input
                                     type="date"
                                     value={endDate}
                                     min={startDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-white appearance-none"
+                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-foreground appearance-none"
                                     required
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                        <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Guests</label>
+                    <div className="bg-muted border border-black/5 rounded-lg p-3">
+                        <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Guests</label>
                         <input
                             type="number"
                             min={1}
                             max={10}
                             value={guests}
                             onChange={(e) => setGuests(parseInt(e.target.value))}
-                            className="bg-transparent w-full text-sm focus:outline-none text-white"
+                            className="bg-transparent w-full text-sm focus:outline-none text-foreground"
                         />
                     </div>
 
                     {/* Guest Contact Info */}
-                    <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                        <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Full Name</label>
+                    <div className="bg-muted border border-black/5 rounded-lg p-3">
+                        <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Full Name</label>
                         <input
                             type="text"
                             value={guestName}
                             onChange={(e) => setGuestName(e.target.value)}
-                            className="bg-transparent w-full text-sm focus:outline-none text-white placeholder-neutral-600"
+                            className="bg-transparent w-full text-sm focus:outline-none text-foreground placeholder-muted-foreground"
                             placeholder="Your Name"
                             required
                         />
                     </div>
-                    <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-3">
-                        <label className="text-xs text-neutral-500 uppercase font-semibold block mb-1">Email</label>
+                    <div className="bg-muted border border-black/5 rounded-lg p-3">
+                        <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Email</label>
                         <input
                             type="email"
                             value={guestEmail}
                             onChange={(e) => setGuestEmail(e.target.value)}
-                            className="bg-transparent w-full text-sm focus:outline-none text-white placeholder-neutral-600"
+                            className="bg-transparent w-full text-sm focus:outline-none text-foreground placeholder-muted-foreground"
                             placeholder="your@email.com"
                             required
                         />
                     </div>
                 </div>
 
-                <div className="mb-6 space-y-3 text-neutral-400 text-sm">
+                <div className="mb-6 space-y-3 text-muted-foreground text-sm">
                     <div className="flex justify-between">
                         <span>${pricePerNight} x {nights} nights</span>
                         <span>${accommodationTotal}</span>
@@ -173,7 +173,7 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
                         <span>Cleaning Fee</span>
                         <span>${cleaningFee}</span>
                     </div>
-                    <div className="flex justify-between pt-3 border-t border-neutral-800 font-semibold text-white text-base">
+                    <div className="flex justify-between pt-3 border-t border-black/5 font-semibold text-foreground text-base">
                         <span>Total</span>
                         <span>${total}</span>
                     </div>
@@ -182,7 +182,7 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
                 <button
                     type="submit"
                     disabled={isSubmitting || nights <= 0}
-                    className="w-full bg-amber-500 text-black font-bold py-4 rounded-lg hover:bg-amber-400 transition-colors mb-4 transform active:scale-[0.98] duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                    className="w-full bg-primary text-white font-bold py-4 rounded-lg hover:bg-primary/90 transition-colors mb-4 transform active:scale-[0.98] duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-md shadow-primary/20"
                 >
                     {isSubmitting ? (
                         <>
@@ -194,7 +194,7 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
                     )}
                 </button>
 
-                <p className="text-center text-neutral-500 text-sm">
+                <p className="text-center text-muted-foreground text-sm">
                     You won&apos;t be charged yet
                 </p>
             </form>

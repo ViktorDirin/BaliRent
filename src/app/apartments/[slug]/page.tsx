@@ -63,7 +63,7 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
   }).format(apartment.pricePerNight);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans pb-20">
+    <div className="min-h-screen bg-background text-foreground font-sans pb-20">
       {/* Hero Image Section */}
       <div className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
         <img
@@ -87,9 +87,9 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
                 <p className="text-neutral-300 text-lg">{apartment.address}</p>
               )}
             </div>
-            <div className="bg-white/10 backdrop-blur-md px-6 py-4 rounded-xl border border-white/20">
-              <p className="text-neutral-200 text-sm uppercase tracking-wide">Starting from</p>
-              <p className="text-3xl font-bold text-white">{formattedPrice} <span className="text-base font-normal text-neutral-300">/ night</span></p>
+            <div className="bg-white/90 backdrop-blur-md px-6 py-4 rounded-xl border border-white/20 shadow-sm">
+              <p className="text-foreground/80 text-sm uppercase tracking-wide">Starting from</p>
+              <p className="text-3xl font-bold text-foreground">{formattedPrice} <span className="text-base font-normal text-muted-foreground">/ night</span></p>
             </div>
           </div>
         </div>
@@ -101,69 +101,69 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
           {/* Main Content - Left Column */}
           <div className="lg:col-span-2 space-y-12">
             {/* ... Stats, Description, Amenities, Gallery ... */}
-            <div className="grid grid-cols-3 md:grid-cols-3 gap-4 p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+            <div className="grid grid-cols-3 md:grid-cols-3 gap-4 p-6 bg-white rounded-xl border border-black/5 shadow-sm">
               <div className="flex flex-col items-center justify-center text-center">
-                <Users className="w-5 h-5 text-neutral-400 mb-1" />
-                <span className="text-sm text-neutral-400 uppercase tracking-wider mb-1">Guests</span>
-                <span className="text-xl font-semibold text-white">2</span>
+                <Users className="w-5 h-5 text-primary mb-1" />
+                <span className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Guests</span>
+                <span className="text-xl font-semibold text-foreground">2</span>
               </div>
-              <div className="flex flex-col items-center justify-center text-center border-l border-neutral-800">
-                <Bed className="w-5 h-5 text-neutral-400 mb-1" />
-                <span className="text-sm text-neutral-400 uppercase tracking-wider mb-1">Bedrooms</span>
-                <span className="text-xl font-semibold text-white">{apartment.bedrooms}</span>
+              <div className="flex flex-col items-center justify-center text-center border-l border-black/5">
+                <Bed className="w-5 h-5 text-primary mb-1" />
+                <span className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Bedrooms</span>
+                <span className="text-xl font-semibold text-foreground">{apartment.bedrooms}</span>
               </div>
-              <div className="flex flex-col items-center justify-center text-center border-l border-neutral-800">
-                <Bath className="w-5 h-5 text-neutral-400 mb-1" />
-                <span className="text-sm text-neutral-400 uppercase tracking-wider mb-1">Bathrooms</span>
-                <span className="text-xl font-semibold text-white">{apartment.bathrooms}</span>
+              <div className="flex flex-col items-center justify-center text-center border-l border-black/5">
+                <Bath className="w-5 h-5 text-primary mb-1" />
+                <span className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Bathrooms</span>
+                <span className="text-xl font-semibold text-foreground">{apartment.bathrooms}</span>
               </div>
             </div>
 
             {/* Description */}
             <div>
-              <h2 className="text-2xl font-serif text-white mb-4">About this space</h2>
-              <div className="prose prose-invert prose-lg text-neutral-300 leading-relaxed font-light">
+              <h2 className="text-2xl font-serif text-foreground mb-4">About this space</h2>
+              <div className="prose prose-neutral prose-lg text-muted-foreground leading-relaxed font-light">
                 <p>{apartment.description}</p>
               </div>
             </div>
 
             {/* Amenities */}
             <div>
-              <h2 className="text-2xl font-serif text-white mb-6">Amenities</h2>
+              <h2 className="text-2xl font-serif text-foreground mb-6">Amenities</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {apartment.hasWifi && (
-                  <div className="flex items-center gap-3 p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
-                    <Wifi className="w-5 h-5 text-amber-500" />
-                    <span className="text-neutral-200">Fast Wifi</span>
+                  <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-black/5 shadow-sm">
+                    <Wifi className="w-5 h-5 text-primary" />
+                    <span className="text-foreground">Fast Wifi</span>
                   </div>
                 )}
                 {apartment.hasPool && (
-                  <div className="flex items-center gap-3 p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
-                    <Waves className="w-5 h-5 text-amber-500" />
-                    <span className="text-neutral-200">Private Pool</span>
+                  <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-black/5 shadow-sm">
+                    <Waves className="w-5 h-5 text-primary" />
+                    <span className="text-foreground">Private Pool</span>
                   </div>
                 )}
                 {apartment.hasAirCon && (
-                  <div className="flex items-center gap-3 p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
-                    <Wind className="w-5 h-5 text-amber-500" />
-                    <span className="text-neutral-200">Air Conditioning</span>
+                  <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-black/5 shadow-sm">
+                    <Wind className="w-5 h-5 text-primary" />
+                    <span className="text-foreground">Air Conditioning</span>
                   </div>
                 )}
                 {apartment.hasKitchen && (
-                  <div className="flex items-center gap-3 p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
-                    <Utensils className="w-5 h-5 text-amber-500" />
-                    <span className="text-neutral-200">Full Kitchen</span>
+                  <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-black/5 shadow-sm">
+                    <Utensils className="w-5 h-5 text-primary" />
+                    <span className="text-foreground">Full Kitchen</span>
                   </div>
                 )}
                 {apartment.hasWasher && (
-                  <div className="flex items-center gap-3 p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
-                    <CheckCircle className="w-5 h-5 text-amber-500" />
-                    <span className="text-neutral-200">Washer / Laundry</span>
+                  <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-black/5 shadow-sm">
+                    <CheckCircle className="w-5 h-5 text-primary" />
+                    <span className="text-foreground">Washer / Laundry</span>
                   </div>
                 )}
-                <div className="flex items-center gap-3 p-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
-                  <CheckCircle className="w-5 h-5 text-amber-500" />
-                  <span className="text-neutral-200">Premium Linens</span>
+                <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-black/5 shadow-sm">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  <span className="text-foreground">Premium Linens</span>
                 </div>
               </div>
             </div>
