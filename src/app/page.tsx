@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ArrowRight, Star } from "lucide-react";
+import HomeSearch from "@/components/HomeSearch";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -49,15 +50,7 @@ export default async function Home() {
           <p className="text-xl md:text-2xl text-white font-medium max-w-2xl mx-auto drop-shadow-lg shadow-black/30">
             Discover our handpicked collection of luxury villas and apartments in the heart of Bali.
           </p>
-          <div className="pt-8">
-            <Link
-              href="/our-apartments"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-amber-500 text-black font-bold text-lg rounded-full hover:bg-amber-400 transition-all hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-            >
-              Explore Collection
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
+          <HomeSearch />
         </div>
       </section>
 

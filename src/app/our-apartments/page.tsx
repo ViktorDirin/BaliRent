@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { Bed, Bath, Waves, MapPin, ArrowRight } from "lucide-react";
+import { getAvailableApartments } from "@/lib/actions";
+import { Bed, Bath, Waves, MapPin, ArrowRight, CalendarSearch } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -20,8 +21,35 @@ async function getApartments() {
     }
 }
 
-export default async function OurApartmentsPage() {
-    const apartments = await getApartments();
+export default async function OurApartmentsPage({
+    searchParams,
+}: {
+    searchParams: { [key: string]: string | string[] | undefined };
+}) {
+    // Await searchParams before accessing properties
+    const params = await searchParams;
+    const from = typeof params.from === 'string' ? params.from : undefined;
+    const to = typeof params.to === 'string' ? params.to : undefined;
+    const guests = typeof params.guests === 'string' ? parseInt(params.guests) : 0;
+
+    let apartments = [];
+    let isFiltered = false;
+
+    if (from && to) {
+        const startDate = new Date(from);
+        const endDate = new Date(to);
+
+        // Basic validation
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+            apartments = await getAvailableApartments(startDate, endDate, guests);
+            isFiltered = true;
+        } else {
+            // Fallback if invalid dates
+            apartments = await getApartments();
+        }
+    } else {
+        apartments = await getApartments();
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans">
@@ -39,9 +67,21 @@ export default async function OurApartmentsPage() {
 
             {/* Grid Section */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+                {isFiltered && (
+                    <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-3">
+                        <CalendarSearch className="w-5 h-5 text-primary" />
+                        <p className="text-foreground font-medium">
+                            Showing available properties for <span className="font-bold">{from}</span> to <span className="font-bold">{to}</span>
+                            {guests > 0 && <span> for {guests} guests</span>}
+                        </p>
+                    </div>
+                )}
+
                 {apartments.length === 0 ? (
-                    <div className="text-center py-20">
-                        <p className="text-muted-foreground text-lg">No properties available at the moment.</p>
+                    <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed border-black/10">
+                        <p className="text-muted-foreground text-lg mb-2">No properties available for these dates.</p>
+                        <Link href="/our-apartments" className="text-primary hover:underline font-medium">Clear Dates & Show All</Link>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">

@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Star, CheckCircle, Loader2 } from "lucide-react";
 import { createBooking } from "@/lib/actions";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { enUS } from "date-fns/locale/en-US";
+import { registerLocale } from "react-datepicker";
+
+registerLocale("en-US", enUS);
 
 interface BookingFormProps {
     apartmentId: string;
@@ -11,16 +17,22 @@ interface BookingFormProps {
 }
 
 export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }: BookingFormProps) {
-    // Simple state for demo purposes. In production use a real calendar library.
-    // Default to "tomorrow" and "3 days later"
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const threeDaysLater = new Date(tomorrow);
-    threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+    // Initialize dates
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
 
-    const [startDate, setStartDate] = useState<string>(tomorrow.toISOString().split('T')[0]);
-    const [endDate, setEndDate] = useState<string>(threeDaysLater.toISOString().split('T')[0]);
+    // Set default dates on mount to avoid hydration mismatch
+    useEffect(() => {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const threeDaysLater = new Date(tomorrow);
+        threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+
+        setStartDate(tomorrow);
+        setEndDate(threeDaysLater);
+    }, []);
+
     const [guests, setGuests] = useState(2);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -30,20 +42,23 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
     const [guestEmail, setGuestEmail] = useState("");
 
     // Calculate nights
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const nights = Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)));
+    const nights = (startDate && endDate)
+        ? Math.max(0, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)))
+        : 0;
+
     const accommodationTotal = pricePerNight * nights;
     const total = accommodationTotal + cleaningFee;
 
     const handleBooking = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!startDate || !endDate) return;
+
         setIsSubmitting(true);
         try {
             await createBooking({
                 apartmentId,
-                startDate: new Date(startDate),
-                endDate: new Date(endDate),
+                startDate: startDate,
+                endDate: endDate,
                 guestName,
                 guestEmail,
                 totalPrice: total
@@ -98,29 +113,40 @@ export default function BookingForm({ apartmentId, pricePerNight, cleaningFee }:
             <form onSubmit={handleBooking}>
                 <div className="space-y-4 mb-6">
                     <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-muted border border-black/5 rounded-lg p-3">
+                        <div className="bg-muted border border-black/5 rounded-lg p-3 relative z-20">
                             <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Check-in</label>
-                            <div className="flex items-center gap-2 text-foreground">
-                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2 text-muted-foreground" />
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-foreground appearance-none"
+                            <div className="relative w-full">
+                                <Calendar className="w-4 h-4 absolute top-2.5 left-0 z-10 text-muted-foreground pointer-events-none" />
+                                <DatePicker
+                                    selected={startDate}
+                                    onChange={(date: Date | null) => setStartDate(date)}
+                                    selectsStart
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    minDate={new Date()}
+                                    placeholderText="Check-in"
+                                    locale="en-US"
+                                    className="bg-transparent w-full pl-6 text-sm focus:outline-none text-foreground cursor-pointer"
+                                    dateFormat="MMM d, yyyy"
                                     required
                                 />
                             </div>
                         </div>
-                        <div className="bg-muted border border-black/5 rounded-lg p-3">
+                        <div className="bg-muted border border-black/5 rounded-lg p-3 relative z-10">
                             <label className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Check-out</label>
-                            <div className="flex items-center gap-2 text-foreground">
-                                <Calendar className="w-4 h-4 absolute pointer-events-none ml-2 text-muted-foreground" />
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    min={startDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="bg-transparent w-full pl-8 text-sm focus:outline-none text-foreground appearance-none"
+                            <div className="relative w-full">
+                                <Calendar className="w-4 h-4 absolute top-2.5 left-0 z-10 text-muted-foreground pointer-events-none" />
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={(date: Date | null) => setEndDate(date)}
+                                    selectsEnd
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    minDate={startDate || new Date()}
+                                    placeholderText="Check-out"
+                                    locale="en-US"
+                                    className="bg-transparent w-full pl-6 text-sm focus:outline-none text-foreground cursor-pointer"
+                                    dateFormat="MMM d, yyyy"
                                     required
                                 />
                             </div>
