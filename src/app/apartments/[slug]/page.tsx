@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Users
 } from "lucide-react";
-import { getSettings } from "@/lib/actions";
+import { getSettings, getBookedDates } from "@/lib/actions";
 
 // Force dynamic since we're fetching data
 export const dynamic = "force-dynamic";
@@ -35,6 +35,8 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
   const { slug } = await params;
   const apartment = await getApartment(slug);
   const settings = await getSettings();
+  const bookedDatesRaw = apartment ? await getBookedDates(apartment.id) : [];
+  const bookedDates = bookedDatesRaw.map(d => d.toISOString());
   // ... existing code ...
 
   // Use dynamic cleaning fee if set in settings, otherwise fallback to apartment's fee or 0
@@ -189,6 +191,7 @@ export default async function ApartmentDetailPage({ params }: { params: Promise<
               apartmentId={apartment.id}
               pricePerNight={apartment.pricePerNight}
               cleaningFee={cleaningFee}
+              bookedDates={bookedDates}
             />
           </div>
 

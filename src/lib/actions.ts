@@ -269,10 +269,46 @@ export async function getAvailableApartments(startDate: Date, endDate: Date, gue
             }
         });
 
+
         return apartments;
 
     } catch (error) {
         console.error("Error fetching available apartments:", error);
+        return [];
+    }
+}
+
+export async function getBookedDates(apartmentId: string) {
+    try {
+        const bookings = await prisma.booking.findMany({
+            where: {
+                apartmentId,
+                status: 'confirmed',
+                endDate: {
+                    gte: new Date()
+                }
+            },
+            select: {
+                startDate: true,
+                endDate: true
+            }
+        });
+
+        const bookedDates: Date[] = [];
+
+        bookings.forEach(booking => {
+            const currentDate = new Date(booking.startDate);
+            const end = new Date(booking.endDate);
+
+            while (currentDate <= end) {
+                bookedDates.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        });
+
+        return bookedDates;
+    } catch (error) {
+        console.error("Error fetching booked dates:", error);
         return [];
     }
 }
