@@ -15,10 +15,10 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "lucide-react": "^0.555.0",
-    "next": "16.0.5",
-    "react": "19.2.0",
+    "next": "latest",
+    "react": "latest",
     "react-datepicker": "^9.1.0",
-    "react-dom": "19.2.0",
+    "react-dom": "latest",
     "zod": "^4.2.1"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.0.5",
+    "eslint-config-next": "latest",
     "prisma": "^6.2.1",
     "tailwindcss": "^4",
     "typescript": "^5"
