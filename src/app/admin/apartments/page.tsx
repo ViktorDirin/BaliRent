@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Plus, Edit, Building2 } from "lucide-react";
+
+export const dynamic = 'force-dynamic';
 import DeleteApartmentButton from "@/components/admin/DeleteApartmentButton";
 
 async function getApartments() {

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Save, Loader2 } from "lucide-react";
 import { updateSettings, getSettings } from "@/lib/actions";
 
+export const dynamic = 'force-dynamic';
+
 interface Settings {
     siteName: string;
     email: string;

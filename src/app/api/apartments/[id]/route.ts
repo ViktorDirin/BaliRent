@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/apartments/[id] - Get a single apartment
 export async function GET(
     request: NextRequest,

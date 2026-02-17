@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import AdminSidebar from "@/components/admin/Sidebar";
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminLayout({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">

@@ -1,6 +1,8 @@
 import { createApartment } from '@/lib/actions'
 import SeedButton from '@/components/SeedButton'
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminPage() {
     return (
         <div className="p-8 bg-white text-black min-h-screen">
