@@ -66,8 +66,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ...apartment,
       // parse back for response consistency if needed, though usually admin just wants ack
-      images: JSON.parse(apartment.images),
-      amenities: apartment.amenities ? JSON.parse(apartment.amenities) : []
+      images: apartment.images ? JSON.parse(apartment.images) : [],
+      amenities: (apartment as any).amenities ? JSON.parse((apartment as any).amenities) : []
     }, { status: 201 });
 
   } catch (error) {
