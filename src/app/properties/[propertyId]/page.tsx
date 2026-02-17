@@ -13,6 +13,9 @@ interface PropertyDetailsPageProps {
     };
 }
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function PropertyDetailsPage({ params }: PropertyDetailsPageProps) {
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);
