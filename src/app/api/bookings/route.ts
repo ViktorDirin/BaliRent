@@ -30,18 +30,17 @@ export async function POST(request: Request) {
                 apartmentId: validatedData.apartmentId,
                 startDate: new Date(validatedData.checkInDate),
                 endDate: new Date(validatedData.checkOutDate),
-                guests: Number(validatedData.guests),
-                totalPrice: String(validatedData.totalPrice),
+                totalPrice: Number(validatedData.totalPrice),
                 status: 'PENDING',
-                customerName: validatedData.customerName,
-                customerEmail: validatedData.customerEmail,
+                guestName: validatedData.customerName || "",
+                guestEmail: validatedData.customerEmail || "",
             },
         });
 
         return NextResponse.json(booking, { status: 201 });
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return NextResponse.json({ error: error.errors }, { status: 400 });
+            return NextResponse.json({ error: error.issues }, { status: 400 });
         }
         console.error('Error creating booking:', error);
         return NextResponse.json(

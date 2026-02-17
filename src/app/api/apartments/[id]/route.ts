@@ -35,7 +35,7 @@ export async function GET(
         // Parse amenities safely
         let parsedAmenities = [];
         try {
-            parsedAmenities = apartment.amenities ? JSON.parse(apartment.amenities) : [];
+            parsedAmenities = (apartment as any).amenities ? JSON.parse((apartment as any).amenities) : [];
         } catch (e) {
             parsedAmenities = [];
         }
@@ -75,7 +75,7 @@ export async function PUT(
                 slug,
                 images: images ? JSON.stringify(images) : undefined,
                 amenities: amenities ? JSON.stringify(amenities) : undefined,
-            },
+            } as any,
         });
 
         // Parse images safely for response
@@ -93,7 +93,7 @@ export async function PUT(
         return NextResponse.json({
             ...apartment,
             images: parsedImages,
-            amenities: apartment.amenities ? JSON.parse(apartment.amenities) : [],
+            amenities: (apartment as any).amenities ? JSON.parse((apartment as any).amenities) : [],
         });
     } catch (error) {
         console.error("Error updating apartment:", error);

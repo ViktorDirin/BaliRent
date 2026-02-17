@@ -116,7 +116,8 @@ export default function PropertyDetailsPage({ params }: PropertyDetailsPageProps
                         <div className="sticky top-24">
                             <BookingForm
                                 pricePerNight={property.pricePerNight}
-                                serviceFee={property.serviceFee}
+                                cleaningFee={(property as any).cleaningFee ?? 0}
+                                bookedDates={[]}
                                 apartmentId={property.id}
                             />
                         </div>
