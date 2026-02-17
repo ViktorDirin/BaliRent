@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { apartmentSchema } from '@/lib/validations';
-import { z } from 'zod';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     console.log("DEBUG_POST_BODY:", body);
 
-    // Destructure and handle potential different naming from frontend
     const {
       title,
       description,
@@ -17,18 +14,30 @@ export async function POST(request: Request) {
       pricePerNight,
       images,
       amenities,
-      serviceFee
+      serviceFee,
+      bedrooms,
+      hasAirCon,
+      hasWifi,
+      hasKitchen,
+      address,
+      city,
+      bathrooms,
+      hasPool,
+      hasWasher,
+      checkInTime,
+      checkOutTime,
+      cleaningFee
     } = body;
 
     // Handle price conversion (support both 'price' and 'pricePerNight' inputs)
     const priceValue = pricePerNight !== undefined ? pricePerNight : price;
     const finalPrice = parseFloat(String(priceValue || 0));
+
+    // Handle serviceFee safely (even if not currently used in create, ensures no crash)
     const finalServiceFee = parseFloat(String(serviceFee || 0));
 
-    // Handle JSON serialization for arrays/objects
-    // If it's already a string, keep it. If it's an object/array, stringify it.
+    // Handle JSON serialization for images
     const finalImages = typeof images === 'string' ? images : JSON.stringify(images || []);
-    const finalAmenities = typeof amenities === 'string' ? amenities : JSON.stringify(amenities || []);
 
     // Generate slug
     const slugBase = (title || 'apartment').toLowerCase().trim()
@@ -37,44 +46,41 @@ export async function POST(request: Request) {
       .replace(/^-+|-+$/g, '');
     const slug = `${slugBase}-${Date.now()}`;
 
+    // Create apartment using available schema fields
     const apartment = await prisma.apartment.create({
       data: {
         title: title || 'Untitled Apartment',
         description: description || '',
         location: location || 'Bali',
         pricePerNight: finalPrice,
-        // Removed amenities and serviceFee if they break validation or schema, 
-        // but assuming schema supports them if they are optional. 
-        // Based on recent schema update, `images` is string?, `amenities` is NOT in updated schema provided in chat step 105.
-        // Wait, step 105 schema shows `amenities` was removed? 
-        // Let's check step 105 schema diff again.
-        // Step 105 diff:
-        // -  amenities     String?
-        // -  serviceFee    Float     @default(0)
-        // These were REMOVED.
-        // So I must REMOVE them from the create call to avoid validation error.
-
         images: finalImages,
         slug: slug,
-        bedrooms: 1, // Defaulting as requested
-        hasAirCon: false,
-        hasWifi: true,
-        hasKitchen: false,
+        // Map fields safely with defaults
+        bedrooms: bedrooms ? parseInt(String(bedrooms)) : 1,
+        hasAirCon: !!hasAirCon,
+        hasWifi: hasWifi !== undefined ? !!hasWifi : true,
+        hasKitchen: !!hasKitchen,
+        address: address || null,
+        city: city || 'Canggu',
+        bathrooms: bathrooms ? parseInt(String(bathrooms)) : 1,
+        hasPool: !!hasPool,
+        hasWasher: !!hasWasher,
+        checkInTime: checkInTime || '14:00',
+        checkOutTime: checkOutTime || '11:00',
+        cleaningFee: cleaningFee ? parseFloat(String(cleaningFee)) : 0,
       },
     });
 
     return NextResponse.json({
       ...apartment,
-      // parse back for response consistency if needed, though usually admin just wants ack
+      // 1. & 2. Safe parsing for images and safe casting for amenities
       images: apartment.images ? JSON.parse(apartment.images) : [],
       amenities: (apartment as any).amenities ? JSON.parse((apartment as any).amenities) : []
     }, { status: 201 });
 
   } catch (error) {
+    // 3. Generic error handling
     console.error("DEBUG_POST_ERROR:", error);
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
-    }
     return NextResponse.json(
       { error: 'Failed to create apartment' },
       { status: 500 }
