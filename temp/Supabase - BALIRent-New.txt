@@ -1,0 +1,8 @@
+
+login Github
+pass YtQnNcnP@r+i!X3
+
+postgresql://postgres:YtQnNcnP@r+i!X3@db.xxxx.supabase.co:5432/postgres
+
+DATABASE_URL="postgresql://postgres:YtQnNcnP@r+i!X3@db.jiykhsvvhlxkrqfadrz.supabase.co:5432/postgres"
+
