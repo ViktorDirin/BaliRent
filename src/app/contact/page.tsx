@@ -2,6 +2,8 @@ import { CONTACT_INFO } from "@/lib/constants";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { getSettings } from "@/lib/actions";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ContactPage() {
     const settings = await getSettings();
 
