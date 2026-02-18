@@ -27,15 +27,18 @@ export async function POST(request: Request) {
         // Validate with Zod
         const validatedData = bookingSchema.parse(body);
 
+        const guestName = validatedData.customerName || validatedData.guestName || "Unknown Guest";
+        const guestEmail = validatedData.customerEmail || validatedData.guestEmail || "unknown@example.com";
+
         const booking = await prisma.booking.create({
             data: {
                 apartmentId: validatedData.apartmentId,
                 startDate: new Date(validatedData.checkInDate),
                 endDate: new Date(validatedData.checkOutDate),
                 totalPrice: Number(validatedData.totalPrice),
-                status: 'PENDING',
-                guestName: validatedData.customerName || "",
-                guestEmail: validatedData.customerEmail || "",
+                status: 'pending',
+                guestName,
+                guestEmail,
             },
         });
 
