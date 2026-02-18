@@ -17,6 +17,8 @@ export default function AdminPage() {
                     <input name="title" placeholder="Title" className="border p-2" required />
                     <textarea name="description" placeholder="Description" className="border p-2" required />
                     <input name="price" type="number" placeholder="Price per night" className="border p-2" step="0.01" required />
+                    <input name="location" placeholder="Location (e.g., Ubud)" className="border p-2" />
+                    <input name="bedrooms" type="number" placeholder="Bedrooms" className="border p-2" min="1" step="1" />
                     <button type="submit" className="bg-blue-500 text-white p-2 rounded">Create</button>
                 </form>
             </div>

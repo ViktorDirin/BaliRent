@@ -1,6 +1,7 @@
 'use server'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { apartmentSchema } from '@/lib/validations'
 
 
 export async function getSettings() {
@@ -48,16 +49,27 @@ export async function updateSettings(settings: Record<string, any>) {
 }
 
 
+
 export async function createApartment(formData: FormData) {
     try {
-        const title = formData.get('title') as string
-        const description = formData.get('description') as string
-        const price = parseFloat(formData.get('price') as string)
-        const bedrooms = parseInt(formData.get('bedrooms') as string || '1')
+        const rawData = {
+            title: formData.get('title'),
+            description: formData.get('description'),
+            price: formData.get('price'),
+            bedrooms: formData.get('bedrooms'),
+            location: formData.get('location') || "Bali",
+        };
+
+        const validation = apartmentSchema.safeParse(rawData);
+
+        if (!validation.success) {
+            console.error("Validation failed:", validation.error.flatten());
+            throw new Error(`Validation failed: ${JSON.stringify(validation.error.flatten().fieldErrors)}`);
+        }
+
+        const data = validation.data;
 
         // Handle images: extract all 'images' entries. 
-        // If passed as a JSON string (from some clients), parse it. 
-        // If passed as multiple fields (standard form), get them.
         const rawImages = formData.getAll('images');
         let imagesToSave: string[] = [];
 
@@ -72,20 +84,29 @@ export async function createApartment(formData: FormData) {
             imagesToSave = rawImages as string[];
         }
 
-        const data = {
-            title,
-            description,
-            pricePerNight: price,
-            location: 'Bali',
-            bedrooms: bedrooms || 1,
-            images: JSON.stringify(imagesToSave),
-            slug: (title || 'apartment').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now()
-        }
+        const slug = (data.title || 'apartment').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
 
-        console.log("Saving to DB:", data)
+        const apartmentData = {
+            title: data.title,
+            description: data.description,
+            pricePerNight: data.price,
+            location: data.location || 'Bali',
+            bedrooms: data.bedrooms,
+            bathrooms: data.bathrooms,
+            city: data.city || 'Canggu',
+            hasAirCon: data.hasAirCon ?? false,
+            hasWifi: data.hasWifi ?? true,
+            hasKitchen: data.hasKitchen ?? false,
+            hasPool: data.hasPool ?? false,
+            hasWasher: data.hasWasher ?? false,
+            images: JSON.stringify(imagesToSave),
+            slug: slug
+        };
+
+        console.log("Saving to DB:", apartmentData)
 
         await prisma.apartment.create({
-            data
+            data: apartmentData
         })
         revalidatePath('/admin')
     } catch (error) {
