@@ -52,12 +52,21 @@ export async function updateSettings(settings: Record<string, any>) {
 
 export async function createApartment(formData: FormData) {
     try {
+        // Extract boolean values correctly from FormData checkboxes
         const rawData = {
             title: formData.get('title'),
             description: formData.get('description'),
             price: formData.get('price'),
             bedrooms: formData.get('bedrooms'),
+            bathrooms: formData.get('bathrooms'),
             location: formData.get('location') || "Bali",
+            city: formData.get('city') || "Canggu",
+            // Checkbox value is 'on' if checked, null if not
+            hasAirCon: formData.get('hasAirCon') === 'on',
+            hasWifi: formData.get('hasWifi') === 'on',
+            hasKitchen: formData.get('hasKitchen') === 'on',
+            hasPool: formData.get('hasPool') === 'on',
+            hasWasher: formData.get('hasWasher') === 'on',
         };
 
         const validation = apartmentSchema.safeParse(rawData);
@@ -84,7 +93,18 @@ export async function createApartment(formData: FormData) {
             imagesToSave = rawImages as string[];
         }
 
-        const slug = (data.title || 'apartment').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+        // Generate robust slug
+        const timestamp = Date.now();
+        const randomSuffix = Math.floor(Math.random() * 1000);
+        const slugBase = (data.title || 'apartment').toLowerCase().trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+        const finalSlugBase = slugBase || 'apartment';
+        const slug = `${finalSlugBase}-${timestamp}-${randomSuffix}`;
+
+        console.log("Generated slug:", slug);
 
         const apartmentData = {
             title: data.title,
