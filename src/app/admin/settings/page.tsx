@@ -175,9 +175,13 @@ export default function SettingsPage() {
                             type="number"
                             min="0"
                             step="0.01"
-                            value={settings.cleaningFee}
-                            onChange={(e) => setSettings({ ...settings, cleaningFee: parseFloat(e.target.value) || 0 })}
+                            value={settings.cleaningFee === 0 ? "" : settings.cleaningFee}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSettings({ ...settings, cleaningFee: val === "" ? 0 : parseFloat(val) });
+                            }}
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                            placeholder="0.00"
                         />
                     </div>
 
@@ -188,9 +192,14 @@ export default function SettingsPage() {
                             min="0"
                             max="100"
                             step="0.1"
-                            value={settings.taxRate}
-                            onChange={(e) => setSettings({ ...settings, taxRate: parseFloat(e.target.value) || 0 })}
+                            value={settings.taxRate === 0 ? "" : settings.taxRate}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSettings({ ...settings, taxRate: val === "" ? 0 : parseFloat(val) });
+                            }}
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
+                            placeholder="0"
+                            title="Value must be less than or equal to 100"
                         />
                     </div>
                 </div>
@@ -205,6 +214,8 @@ export default function SettingsPage() {
                             value={settings.facebook_url}
                             onChange={(e) => setSettings({ ...settings, facebook_url: e.target.value })}
                             placeholder="https://facebook.com/yourpage"
+                            pattern="https?://.*"
+                            title="Must be a valid URL starting with http:// or https://"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -216,6 +227,8 @@ export default function SettingsPage() {
                             value={settings.instagram_url}
                             onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
                             placeholder="https://instagram.com/yourpage"
+                            pattern="https?://.*"
+                            title="Must be a valid URL starting with http:// or https://"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -227,6 +240,8 @@ export default function SettingsPage() {
                             value={settings.twitter_url}
                             onChange={(e) => setSettings({ ...settings, twitter_url: e.target.value })}
                             placeholder="https://x.com/yourpage"
+                            pattern="https?://.*"
+                            title="Must be a valid URL starting with http:// or https://"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
