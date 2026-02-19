@@ -90,7 +90,12 @@ export default function SettingsPage() {
 
         try {
             // We pass the settings object directly. The server action will handle upserting each key.
-            await updateSettings(settings);
+            // Strip spaces from phone number before saving to ensure database consistency
+            const settingsToSave = {
+                ...settings,
+                phone: settings.phone.replace(/\s/g, '')
+            };
+            await updateSettings(settingsToSave);
 
             setMessage({ type: 'success', text: 'Settings saved successfully' });
         } catch (error) {
@@ -132,6 +137,7 @@ export default function SettingsPage() {
                             type="text"
                             value={settings.siteName}
                             onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                            placeholder="e.g. BaliRent Luxury"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -141,11 +147,10 @@ export default function SettingsPage() {
                         <input
                             type="email"
                             value={settings.email}
-                            onChange={(e) => {
-                                e.target.setCustomValidity("");
-                                setSettings({ ...settings, email: e.target.value });
-                            }}
+                            onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid email address.")}
+                            placeholder="example@mail.com"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -156,12 +161,45 @@ export default function SettingsPage() {
                             type="tel"
                             value={settings.phone}
                             onChange={(e) => {
-                                e.target.setCustomValidity("");
-                                setSettings({ ...settings, phone: e.target.value });
+                                let val = e.target.value.replace(/[^0-9+]/g, '');
+                                if (!val.startsWith('+') && val.length > 0) {
+                                    val = '+' + val.replace(/\+/g, '');
+                                } else if (val.startsWith('+')) {
+                                    val = '+' + val.slice(1).replace(/\+/g, '');
+                                }
+
+                                // Adaptive formatting based on country code length approximation
+                                // If starts with +1 or +7, assume 1-digit code (+X)
+                                // Otherwise default to 3-digit code (+XXX) for better international coverage
+                                let formatted = val;
+                                const isShortCode = val.startsWith('+1') || val.startsWith('+7');
+                                const firstSpaceIndex = isShortCode ? 2 : 4;
+
+                                if (formatted.length > firstSpaceIndex) {
+                                    formatted = formatted.slice(0, firstSpaceIndex) + ' ' + formatted.slice(firstSpaceIndex);
+                                }
+                                // Subsequent spacing every 3-4 chars roughly
+                                const secondSpaceIndex = firstSpaceIndex + 4; // e.g., +1 XXX or +XXX XXX
+                                if (formatted.length > secondSpaceIndex) {
+                                    formatted = formatted.slice(0, secondSpaceIndex) + ' ' + formatted.slice(secondSpaceIndex);
+                                }
+                                const thirdSpaceIndex = secondSpaceIndex + 4;
+                                if (formatted.length > thirdSpaceIndex) {
+                                    formatted = formatted.slice(0, thirdSpaceIndex) + ' ' + formatted.slice(thirdSpaceIndex);
+                                }
+                                const fourthSpaceIndex = thirdSpaceIndex + 5;
+                                if (formatted.length > fourthSpaceIndex) {
+                                    formatted = formatted.slice(0, fourthSpaceIndex) + ' ' + formatted.slice(fourthSpaceIndex);
+                                }
+
+                                setSettings({ ...settings, phone: formatted.trim() });
                             }}
-                            pattern="^\+?[0-9\s-]{10,}$"
-                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid phone number (e.g., +1234567890).")}
-                            title="Phone number must contain at least 10 digits and may start with +"
+                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
+                            required
+                            pattern="^\+[\d\s]{7,25}$"
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid international phone number (e.g., +123456789)")}
+                            title="Please enter a valid international phone number (e.g., +123456789)"
+                            placeholder="+Country Code XXX XXX XXXX"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -204,10 +242,10 @@ export default function SettingsPage() {
                             step="0.1"
                             value={settings.taxRate === 0 ? "" : settings.taxRate}
                             onChange={(e) => {
-                                e.target.setCustomValidity("");
                                 const val = e.target.value;
                                 setSettings({ ...settings, taxRate: val === "" ? 0 : parseFloat(val) });
                             }}
+                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Value must be less than or equal to 100.")}
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                             placeholder="0"
@@ -224,10 +262,8 @@ export default function SettingsPage() {
                         <input
                             type="url"
                             value={settings.facebook_url}
-                            onChange={(e) => {
-                                e.target.setCustomValidity("");
-                                setSettings({ ...settings, facebook_url: e.target.value });
-                            }}
+                            onChange={(e) => setSettings({ ...settings, facebook_url: e.target.value })}
+                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             placeholder="https://facebook.com/yourpage"
                             pattern="https?://.*"
                             onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid URL starting with http:// or https://")}
@@ -241,10 +277,8 @@ export default function SettingsPage() {
                         <input
                             type="url"
                             value={settings.instagram_url}
-                            onChange={(e) => {
-                                e.target.setCustomValidity("");
-                                setSettings({ ...settings, instagram_url: e.target.value });
-                            }}
+                            onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
+                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             placeholder="https://instagram.com/yourpage"
                             pattern="https?://.*"
                             onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid URL starting with http:// or https://")}
@@ -258,10 +292,8 @@ export default function SettingsPage() {
                         <input
                             type="url"
                             value={settings.twitter_url}
-                            onChange={(e) => {
-                                e.target.setCustomValidity("");
-                                setSettings({ ...settings, twitter_url: e.target.value });
-                            }}
+                            onChange={(e) => setSettings({ ...settings, twitter_url: e.target.value })}
+                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             placeholder="https://x.com/yourpage"
                             pattern="https?://.*"
                             onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid URL starting with http:// or https://")}

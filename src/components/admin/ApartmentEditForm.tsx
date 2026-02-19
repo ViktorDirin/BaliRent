@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Loader2, GripVertical } from "lucide-react";
 import Link from "next/link";
 
 interface ApartmentEditFormProps {
@@ -343,15 +343,56 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                     {images.length > 0 ? (
                         <div className="space-y-2">
                             {images.map((url, index) => (
-                                <div key={index} className="flex items-center gap-3 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                                    <div className="h-10 w-10 bg-neutral-200 dark:bg-neutral-700 rounded overflow-hidden flex-shrink-0">
-                                        <img src={url} alt={`Preview ${index}`} className="h-full w-full object-cover" />
+                                <div
+                                    key={index}
+                                    draggable
+                                    onDragStart={(e) => {
+                                        e.dataTransfer.setData('text/plain', index.toString());
+                                        e.dataTransfer.effectAllowed = 'move';
+                                    }}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = 'move';
+                                    }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                                        const toIndex = index;
+
+                                        if (fromIndex === toIndex) return;
+
+                                        const newImages = [...images];
+                                        const [movedItem] = newImages.splice(fromIndex, 1);
+                                        newImages.splice(toIndex, 0, movedItem);
+                                        setImages(newImages);
+                                    }}
+                                    className="group flex items-center gap-3 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-primary/50 transition-colors cursor-move"
+                                >
+                                    <div className="text-neutral-400 cursor-grab active:cursor-grabbing p-1">
+                                        <GripVertical className="h-5 w-5" />
                                     </div>
-                                    <span className="flex-1 text-sm truncate font-mono text-muted-foreground">{url}</span>
+
+                                    <div className="relative h-16 w-24 bg-neutral-200 dark:bg-neutral-700 rounded overflow-hidden flex-shrink-0">
+                                        <img src={url} alt={`Preview ${index}`} className="h-full w-full object-cover" />
+                                        {index === 0 && (
+                                            <div className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[10px] font-bold text-center py-1 backdrop-blur-sm">
+                                                COVER
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm truncate font-mono text-muted-foreground">{url}</p>
+                                        {index === 0 && (
+                                            <p className="text-xs text-primary font-medium mt-1">Main Preview Image</p>
+                                        )}
+                                    </div>
+
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveImage(index)}
                                         className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                        title="Remove image"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </button>
