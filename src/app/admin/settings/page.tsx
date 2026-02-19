@@ -141,7 +141,11 @@ export default function SettingsPage() {
                         <input
                             type="email"
                             value={settings.email}
-                            onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                            onChange={(e) => {
+                                e.target.setCustomValidity("");
+                                setSettings({ ...settings, email: e.target.value });
+                            }}
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid email address.")}
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -151,7 +155,13 @@ export default function SettingsPage() {
                         <input
                             type="tel"
                             value={settings.phone}
-                            onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                            onChange={(e) => {
+                                e.target.setCustomValidity("");
+                                setSettings({ ...settings, phone: e.target.value });
+                            }}
+                            pattern="^\+?[0-9\s-]{10,}$"
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid phone number (e.g., +1234567890).")}
+                            title="Phone number must contain at least 10 digits and may start with +"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
                     </div>
@@ -194,9 +204,11 @@ export default function SettingsPage() {
                             step="0.1"
                             value={settings.taxRate === 0 ? "" : settings.taxRate}
                             onChange={(e) => {
+                                e.target.setCustomValidity("");
                                 const val = e.target.value;
                                 setSettings({ ...settings, taxRate: val === "" ? 0 : parseFloat(val) });
                             }}
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Value must be less than or equal to 100.")}
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                             placeholder="0"
                             title="Value must be less than or equal to 100"
@@ -212,9 +224,13 @@ export default function SettingsPage() {
                         <input
                             type="url"
                             value={settings.facebook_url}
-                            onChange={(e) => setSettings({ ...settings, facebook_url: e.target.value })}
+                            onChange={(e) => {
+                                e.target.setCustomValidity("");
+                                setSettings({ ...settings, facebook_url: e.target.value });
+                            }}
                             placeholder="https://facebook.com/yourpage"
                             pattern="https?://.*"
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid URL starting with http:// or https://")}
                             title="Must be a valid URL starting with http:// or https://"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
@@ -225,9 +241,13 @@ export default function SettingsPage() {
                         <input
                             type="url"
                             value={settings.instagram_url}
-                            onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
+                            onChange={(e) => {
+                                e.target.setCustomValidity("");
+                                setSettings({ ...settings, instagram_url: e.target.value });
+                            }}
                             placeholder="https://instagram.com/yourpage"
                             pattern="https?://.*"
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid URL starting with http:// or https://")}
                             title="Must be a valid URL starting with http:// or https://"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
@@ -238,9 +258,13 @@ export default function SettingsPage() {
                         <input
                             type="url"
                             value={settings.twitter_url}
-                            onChange={(e) => setSettings({ ...settings, twitter_url: e.target.value })}
+                            onChange={(e) => {
+                                e.target.setCustomValidity("");
+                                setSettings({ ...settings, twitter_url: e.target.value });
+                            }}
                             placeholder="https://x.com/yourpage"
                             pattern="https?://.*"
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Please enter a valid URL starting with http:// or https://")}
                             title="Must be a valid URL starting with http:// or https://"
                             className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-neutral-800"
                         />
