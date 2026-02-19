@@ -1,28 +1,20 @@
 import Link from "next/link";
 import { Plus, Edit, Building2 } from "lucide-react";
-
-export const dynamic = 'force-dynamic';
+import { prisma } from "@/lib/prisma";
 import DeleteApartmentButton from "@/components/admin/DeleteApartmentButton";
 
-async function getApartments() {
-    try {
-        const res = await fetch("http://localhost:3000/api/apartments", {
-            cache: "no-store",
-        });
-
-        if (!res.ok) {
-            throw new Error("Failed to fetch apartments");
-        }
-
-        return res.json();
-    } catch (error) {
-        console.error("Error loading apartments:", error);
-        return [];
-    }
-}
+export const dynamic = 'force-dynamic';
 
 export default async function ApartmentsPage() {
-    const apartments = await getApartments();
+    // Fetch data directly from Supabase using the configured DATABASE_URL (Port 6543 with pgbouncer)
+    const apartments = await prisma.apartment.findMany({
+        orderBy: {
+            createdAt: 'desc'
+        }
+    }).catch((error) => {
+        console.error("Error loading apartments directly from DB:", error);
+        return [];
+    });
 
     return (
         <div>
@@ -58,40 +50,36 @@ export default async function ApartmentsPage() {
                     {apartments.map((apartment: any) => (
                         <div key={apartment.id} className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
                             <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative">
-                                <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative">
-                                    {(() => {
-                                        let images: string[] = [];
-                                        try {
-                                            const rawImages = apartment.images;
-                                            if (typeof rawImages === 'string') {
-                                                if (rawImages.trim().startsWith('http')) {
-                                                    images = [rawImages];
-                                                } else {
-                                                    const parsed = JSON.parse(rawImages);
-                                                    if (Array.isArray(parsed)) {
-                                                        images = parsed;
-                                                    }
-                                                }
-                                            } else if (Array.isArray(rawImages)) {
-                                                images = rawImages;
+                                {(() => {
+                                    let images: string[] = [];
+                                    try {
+                                        const rawImages = apartment.images;
+                                        if (Array.isArray(rawImages)) {
+                                            images = rawImages;
+                                        } else if (typeof rawImages === 'string') {
+                                            if (rawImages.trim().startsWith('http')) {
+                                                images = [rawImages];
+                                            } else {
+                                                const parsed = JSON.parse(rawImages);
+                                                if (Array.isArray(parsed)) images = parsed;
                                             }
-                                        } catch (e) {
-                                            images = [];
                                         }
+                                    } catch (e) {
+                                        images = [];
+                                    }
 
-                                        return images.length > 0 ? (
-                                            <img
-                                                src={images[0]}
-                                                alt={apartment.title}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-neutral-400">
-                                                <Building2 className="h-12 w-12" />
-                                            </div>
-                                        );
-                                    })()}
-                                </div>
+                                    return images.length > 0 ? (
+                                        <img
+                                            src={images[0]}
+                                            alt={apartment.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                                            <Building2 className="h-12 w-12" />
+                                        </div>
+                                    );
+                                })()}
                             </div>
                             <div className="p-4">
                                 <h3 className="font-bold text-lg mb-2 truncate">{apartment.title}</h3>
@@ -114,5 +102,3 @@ export default async function ApartmentsPage() {
         </div>
     );
 }
-
-
