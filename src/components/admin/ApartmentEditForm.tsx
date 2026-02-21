@@ -319,7 +319,7 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                 </div>
 
                 {/* Images Section */}
-                <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+                <div className="bg-white dark:bg-neutral-900 p-4 sm:p-6 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                     <h2 className="text-xl font-semibold mb-4">Property Images</h2>
 
                     <div className="flex gap-2 mb-4">
@@ -368,11 +368,11 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                                     }}
                                     className="group flex items-center gap-3 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-primary/50 transition-colors cursor-move"
                                 >
-                                    <div className="text-neutral-400 cursor-grab active:cursor-grabbing p-1">
+                                    <div className="text-neutral-400 cursor-grab active:cursor-grabbing p-0.5">
                                         <GripVertical className="h-5 w-5" />
                                     </div>
 
-                                    <div className="relative h-16 w-24 bg-neutral-200 dark:bg-neutral-700 rounded overflow-hidden flex-shrink-0">
+                                    <div className="relative h-12 w-16 sm:h-16 sm:w-24 bg-neutral-200 dark:bg-neutral-700 rounded overflow-hidden flex-shrink-0">
                                         <img src={url} alt={`Preview ${index}`} className="h-full w-full object-cover" />
                                         {index === 0 && (
                                             <div className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[10px] font-bold text-center py-1 backdrop-blur-sm">
@@ -381,7 +381,7 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                                         )}
                                     </div>
 
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 overflow-hidden">
                                         <p className="text-sm truncate font-mono text-muted-foreground">{url}</p>
                                         {index === 0 && (
                                             <p className="text-xs text-primary font-medium mt-1">Main Preview Image</p>
@@ -405,11 +405,11 @@ export default function ApartmentEditForm({ initialData }: ApartmentEditFormProp
                 </div>
 
                 {/* Submit Button */}
-                <div className="flex justify-end pt-4">
+                <div className="flex justify-end pt-4 sm:justify-end">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="w-full sm:w-auto justify-center px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {isLoading ? (
                             <>
