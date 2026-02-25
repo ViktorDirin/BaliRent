@@ -327,3 +327,44 @@ export async function getBookedDates(apartmentId: string) {
         return [];
     }
 }
+
+export async function sendMessage(data: {
+    name: string;
+    email: string;
+    phone: string;
+    message: string;
+}): Promise<{ success: boolean; error?: string }> {
+    try {
+        // Server-side validation
+        if (!data.name.trim()) return { success: false, error: "Name is required." };
+        if (!data.email.trim()) return { success: false, error: "Email is required." };
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+            return { success: false, error: "Invalid email address." };
+        if (!data.phone.trim()) return { success: false, error: "Phone number is required." };
+        if (!data.message.trim()) return { success: false, error: "Message is required." };
+
+        const record = await prisma.contactMessage.create({
+            data: {
+                name: data.name.trim(),
+                email: data.email.trim().toLowerCase(),
+                phone: data.phone.trim(),
+                message: data.message.trim(),
+            },
+        });
+
+        console.log("📩 New contact message received:", {
+            id: record.id,
+            name: record.name,
+            email: record.email,
+            phone: record.phone,
+            message: record.message,
+            at: record.createdAt.toISOString(),
+        });
+
+        revalidatePath("/admin");
+        return { success: true };
+    } catch (error) {
+        console.error("Error saving contact message:", error);
+        return { success: false, error: "Failed to send message. Please try again." };
+    }
+}

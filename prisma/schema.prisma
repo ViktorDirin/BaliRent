@@ -62,3 +62,13 @@ model Settings {
   key   String @unique
   value String
 }
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
