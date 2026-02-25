@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ArrowRight, Star } from "lucide-react";
 import HomeSearch from "@/components/HomeSearch";
+import HeroScrollArrow from "@/components/HeroScrollArrow";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -27,7 +28,7 @@ export default async function Home() {
 
 
       {/* Hero Section */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen w-full flex flex-col items-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
@@ -35,22 +36,60 @@ export default async function Home() {
             alt="Bali Villa"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" /> {/* Very subtle top gradient */}
+          {/* Lighter overlay — lets the background image breathe */}
+          <div className="absolute inset-0 bg-black/25" />
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto space-y-8 animate-fade-in-up pt-20">
-          <span className="text-amber-500 font-medium tracking-[0.2em] uppercase text-sm md:text-base animate-slide-up drop-shadow-sm">
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto pt-20 gap-8">
+
+          {/* Gold eyelet */}
+          <span
+            className="tracking-[0.3em] uppercase text-sm md:text-base font-semibold"
+            style={{
+              color: "rgb(255,212,0)",
+              textShadow: "1px 1px 6px rgba(0,0,0,0.45)",
+            }}
+          >
             Welcome to Paradise
           </span>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif text-white leading-tight drop-shadow-lg filter shadow-black/20">
-            Exquisite <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-amber-100 drop-shadow-md">Bali Living</span>
+
+          {/* Main heading — Cinzel 700, upright, pure white */}
+          <h1
+            style={{
+              fontFamily: "var(--font-cinzel), serif",
+              fontWeight: 700,
+              fontSize: "clamp(2.8rem, 8.5vw, 6.5rem)",
+              lineHeight: 1.08,
+              letterSpacing: "0.04em",
+              color: "#ffffff",
+              textShadow: "1px 1px 6px rgba(0,0,0,0.45)",
+            }}
+          >
+            EXPERIENCE
+            <br />
+            <span style={{ color: "#ffffff" }}>BALI&apos;S </span>
+            <span style={{ color: "rgb(255,212,0)" }}>SOUL</span>
           </h1>
-          <p className="text-xl md:text-2xl text-white font-medium max-w-2xl mx-auto drop-shadow-lg shadow-black/30">
-            Discover our handpicked collection of luxury villas and apartments in the heart of Bali.
+
+          {/* Sub-headline — pure white */}
+          <p
+            className="text-lg md:text-xl font-light max-w-xl mx-auto leading-relaxed"
+            style={{
+              color: "#ffffff",
+              textShadow: "1px 1px 6px rgba(0,0,0,0.45)",
+            }}
+          >
+            Discover our handpicked collection of luxury villas and
+            apartments in the heart of Bali.
           </p>
+
           <HomeSearch />
+        </div>
+
+        {/* Floating scroll arrow */}
+        <div className="relative z-10 pb-8">
+          <HeroScrollArrow />
         </div>
       </section>
 
