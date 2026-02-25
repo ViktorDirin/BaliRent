@@ -135,22 +135,22 @@ export default async function AdminBookingsPage() {
                     <table className="w-full text-left text-sm">
                         <thead>
                             <tr className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-800">
-                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">
+                                <th className="px-4 py-3 font-semibold text-neutral-900 dark:text-white">
                                     Apartment
                                 </th>
-                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">
+                                <th className="px-4 py-3 font-semibold text-neutral-900 dark:text-white">
                                     Guest
                                 </th>
-                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">
+                                <th className="px-4 py-3 font-semibold text-neutral-900 dark:text-white">
                                     Dates
                                 </th>
-                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">
+                                <th className="px-4 py-3 font-semibold text-neutral-900 dark:text-white">
                                     Total
                                 </th>
-                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white">
+                                <th className="px-4 py-3 font-semibold text-neutral-900 dark:text-white">
                                     Status
                                 </th>
-                                <th className="px-6 py-4 font-semibold text-neutral-900 dark:text-white text-right">
+                                <th className="px-4 py-3 font-semibold text-neutral-900 dark:text-white text-right">
                                     Actions
                                 </th>
                             </tr>
@@ -168,7 +168,7 @@ export default async function AdminBookingsPage() {
                                         key={booking.id}
                                         className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                                     >
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-3">
                                             <div className="font-medium text-neutral-900 dark:text-white">
                                                 {booking.apartment.title}
                                             </div>
@@ -176,7 +176,7 @@ export default async function AdminBookingsPage() {
                                                 {booking.apartment.location}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-3">
                                             <div className="font-medium text-neutral-900 dark:text-white">
                                                 {booking.guestName}
                                             </div>
@@ -184,7 +184,7 @@ export default async function AdminBookingsPage() {
                                                 {booking.guestEmail}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-3">
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                                                     <Calendar className="h-3 w-3" />
@@ -203,12 +203,12 @@ export default async function AdminBookingsPage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-3">
                                             <span className="font-medium font-serif">
                                                 ${booking.totalPrice.toLocaleString()}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-3">
                                             <StatusBadge status={booking.status} />
                                         </td>
                                         <td className="px-6 py-4 text-right">

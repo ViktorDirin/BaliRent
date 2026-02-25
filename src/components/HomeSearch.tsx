@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Users, Search } from "lucide-react";
+import { Calendar, Users, Search, MapPin } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { enUS } from "date-fns/locale/en-US";
@@ -10,30 +10,57 @@ import { registerLocale } from "react-datepicker";
 
 registerLocale("en-US", enUS);
 
+// Returns 'YYYY-MM-DD' in LOCAL time — avoids UTC offset shifting the date
+function toLocalDateString(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
 export default function HomeSearch() {
     const router = useRouter();
     const [checkIn, setCheckIn] = useState<Date | null>(null);
     const [checkOut, setCheckOut] = useState<Date | null>(null);
     const [guests, setGuests] = useState("2");
+    const [location, setLocation] = useState("");
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         const params = new URLSearchParams();
-        if (checkIn) params.set("from", checkIn.toISOString().split('T')[0]);
-        if (checkOut) params.set("to", checkOut.toISOString().split('T')[0]);
+        if (checkIn) params.set("from", toLocalDateString(checkIn));
+        if (checkOut) params.set("to", toLocalDateString(checkOut));
         if (guests) params.set("guests", guests);
+        if (location.trim()) params.set("location", location.trim());
 
         router.push(`/our-apartments?${params.toString()}`);
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto mt-8">
+        <div className="w-full max-w-5xl mx-auto mt-8">
             <form
                 onSubmit={handleSearch}
-                className="bg-[#F9F8F3] p-4 rounded-xl shadow-xl shadow-black/10 border border-white/20 flex flex-col md:flex-row gap-4 items-center"
+                className="bg-[#F9F8F3] p-4 rounded-xl shadow-xl shadow-black/10 border border-white/20 flex flex-col md:flex-row gap-3 items-center"
             >
+                {/* Location */}
+                <div className="relative w-full md:w-1/5 group">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <MapPin className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex flex-col w-full">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 ml-10">Where to?</label>
+                        <input
+                            type="text"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            placeholder="Seminyak, Ubud…"
+                            className="pl-10 pr-4 py-3 bg-white border border-black/5 rounded-lg text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all shadow-sm"
+                        />
+                    </div>
+                </div>
+
                 {/* Check-in */}
-                <div className="relative w-full md:w-1/3 group z-20">
+                <div className="relative w-full md:w-1/5 group z-20">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <Calendar className="h-5 w-5 text-primary" />
                     </div>
@@ -57,7 +84,7 @@ export default function HomeSearch() {
                 </div>
 
                 {/* Check-out */}
-                <div className="relative w-full md:w-1/3 group z-10">
+                <div className="relative w-full md:w-1/5 group z-10">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <Calendar className="h-5 w-5 text-primary" />
                     </div>
@@ -81,7 +108,7 @@ export default function HomeSearch() {
                 </div>
 
                 {/* Guests */}
-                <div className="relative w-full md:w-1/4 group">
+                <div className="relative w-full md:w-1/6 group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Users className="h-5 w-5 text-primary" />
                     </div>

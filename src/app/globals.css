@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Force light mode globally - prevents browser dark mode from inverting colors */
+html {
+  color-scheme: light !important;
+}
+
 :root {
   --background: #F9F8F3;
   --foreground: #1A1A1A;
@@ -38,6 +43,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  color-scheme: light !important;
 }
 
 h1, h2, h3, h4, h5, h6 {

@@ -145,7 +145,7 @@ export default async function AdminDashboard() {
 
             {/* Stats Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 hover:shadow-lg transition-all duration-200 cursor-default">
+                <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 hover:shadow-lg transition-all duration-200 cursor-default min-w-0">
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <div className="text-sm font-medium text-muted-foreground">Total Revenue</div>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -157,7 +157,7 @@ export default async function AdminDashboard() {
                     </p>
                 </div>
 
-                <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 hover:shadow-lg transition-all duration-200 cursor-default">
+                <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 hover:shadow-lg transition-all duration-200 cursor-default min-w-0">
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <div className="text-sm font-medium text-muted-foreground">Active Listings</div>
                         <Home className="h-4 w-4 text-muted-foreground" />
@@ -193,7 +193,7 @@ export default async function AdminDashboard() {
 
             {/* Charts Section */}
             <div className="grid md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 bg-white dark:bg-neutral-900 rounded-xl border shadow-sm p-6">
+                <div className="md:col-span-2 bg-white dark:bg-neutral-900 rounded-xl border shadow-sm p-6 min-w-0">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="text-lg font-semibold">Revenue Overview</h3>
@@ -270,35 +270,35 @@ export default async function AdminDashboard() {
                             <table className="w-full caption-bottom text-sm">
                                 <thead className="[&_tr]:border-b">
                                     <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted text-left">
-                                        <th className="h-12 px-6 align-middle font-medium text-muted-foreground w-[200px]">Apartment</th>
-                                        <th className="h-12 px-6 align-middle font-medium text-muted-foreground">Guest</th>
-                                        <th className="h-12 px-6 align-middle font-medium text-muted-foreground">Date Booked</th>
-                                        <th className="h-12 px-6 align-middle font-medium text-muted-foreground text-right">Total</th>
-                                        <th className="h-12 px-6 align-middle font-medium text-muted-foreground text-center">Status</th>
+                                        <th className="h-11 px-4 align-middle font-medium text-muted-foreground">Apartment</th>
+                                        <th className="h-11 px-4 align-middle font-medium text-muted-foreground">Guest</th>
+                                        <th className="h-11 px-4 align-middle font-medium text-muted-foreground">Date Booked</th>
+                                        <th className="h-11 px-4 align-middle font-medium text-muted-foreground text-right">Total</th>
+                                        <th className="h-11 px-4 align-middle font-medium text-muted-foreground text-center">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="[&_tr:last-child]:border-0">
                                     {stats.recentBookings.map((booking) => (
                                         <tr key={booking.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                            <td className="p-6 align-middle font-medium">
-                                                <div className="flex flex-col space-y-1">
-                                                    <span className="font-medium truncate max-w-[200px]">{booking.apartment.title}</span>
+                                            <td className="px-4 py-3 align-middle font-medium">
+                                                <div className="flex flex-col space-y-0.5">
+                                                    <span className="font-medium truncate max-w-[180px]">{booking.apartment.title}</span>
                                                     <span className="text-xs text-muted-foreground">{booking.apartment.city}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-6 align-middle">
-                                                <div className="flex flex-col space-y-1">
+                                            <td className="px-4 py-3 align-middle">
+                                                <div className="flex flex-col space-y-0.5">
                                                     <span className="font-medium">{booking.guestName}</span>
                                                     <span className="text-xs text-muted-foreground">{booking.guestEmail}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-6 align-middle text-muted-foreground">
+                                            <td className="px-4 py-3 align-middle text-muted-foreground">
                                                 {formatDate(booking.createdAt)}
                                             </td>
-                                            <td className="p-6 align-middle text-right font-medium">
+                                            <td className="px-4 py-3 align-middle text-right font-medium">
                                                 {formatCurrency(booking.totalPrice)}
                                             </td>
-                                            <td className="p-6 align-middle text-center">
+                                            <td className="px-4 py-3 align-middle text-center">
                                                 {getStatusBadge(booking.status)}
                                             </td>
                                         </tr>

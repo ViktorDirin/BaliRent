@@ -33,7 +33,7 @@ export default async function ApartmentsPage() {
             </div>
 
             {apartments.length === 0 ? (
-                <div className="bg-white dark:bg-neutral-900 p-12 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 text-center">
+                <div className="bg-white p-12 rounded-lg shadow-sm border border-neutral-200 text-center">
                     <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-2">No apartments yet</h3>
                     <p className="text-muted-foreground mb-6">Get started by adding your first apartment</p>
@@ -48,8 +48,8 @@ export default async function ApartmentsPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {apartments.map((apartment: any) => (
-                        <div key={apartment.id} className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
-                            <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative">
+                        <div key={apartment.id} className="bg-white text-slate-900 rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+                            <div className="aspect-[4/3] bg-neutral-200 relative">
                                 {(() => {
                                     let images: string[] = [];
                                     try {
@@ -82,12 +82,12 @@ export default async function ApartmentsPage() {
                                 })()}
                             </div>
                             <div className="p-4">
-                                <h3 className="font-bold text-lg mb-2 truncate">{apartment.title}</h3>
+                                <h3 className="font-bold text-lg mb-2 truncate text-slate-900">{apartment.title}</h3>
                                 <p className="text-muted-foreground text-sm mb-4 truncate">{apartment.location}</p>
                                 <div className="flex gap-2">
                                     <Link
                                         href={`/admin/apartments/${apartment.id}/edit`}
-                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-neutral-300 text-slate-700 bg-white rounded-lg hover:bg-neutral-100 transition-colors"
                                     >
                                         <Edit className="h-4 w-4" />
                                         Edit

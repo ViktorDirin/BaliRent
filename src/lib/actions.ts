@@ -260,56 +260,30 @@ export async function seedApartments() {
 
 export async function getAvailableApartments(startDate: Date, endDate: Date, guests: number = 0) {
     try {
-        // First get all confirmed bookings that overlap with our dates
+        // Strict interval overlap — allows same-day turnover:
+        //   booking BLOCKS the search window ONLY IF:
+        //   bookingStart < selectedEnd  AND  bookingEnd > selectedStart
+        // Only 'confirmed' and 'pending' bookings block; 'cancelled' does not.
         const conflictingBookings = await prisma.booking.findMany({
             where: {
-                status: 'confirmed',
-                OR: [
-                    // Case 1: Existing booking starts during requested period
-                    {
-                        startDate: {
-                            gte: startDate,
-                            lt: endDate
-                        }
-                    },
-                    // Case 2: Existing booking ends during requested period
-                    {
-                        endDate: {
-                            gt: startDate,
-                            lte: endDate
-                        }
-                    },
-                    // Case 3: Existing booking completely engulfs requested period
-                    {
-                        startDate: { lte: startDate },
-                        endDate: { gte: endDate }
-                    }
-                ]
+                status: { in: ['confirmed', 'pending'] },
+                startDate: { lt: endDate },
+                endDate: { gt: startDate },
             },
-            select: {
-                apartmentId: true
-            }
+            select: { apartmentId: true },
         });
 
         const bookedApartmentIds = conflictingBookings.map(b => b.apartmentId);
 
-        // Fetch apartments that are NOT in the booked list
         const apartments = await prisma.apartment.findMany({
             where: {
-                id: {
-                    notIn: bookedApartmentIds
-                },
-                // Add guest capacity logic if you have a way to track max guests per apartment
-                // For now, let's assume bedrooms * 2 is roughly capacity if not explicitly stored
+                id: { notIn: bookedApartmentIds },
                 bedrooms: {
-                    gte: guests > 0 ? Math.ceil(guests / 2) : 0
-                }
+                    gte: guests > 0 ? Math.ceil(guests / 2) : 0,
+                },
             },
-            orderBy: {
-                createdAt: 'desc'
-            }
+            orderBy: { createdAt: 'desc' },
         });
-
 
         return apartments;
 

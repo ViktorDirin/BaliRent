@@ -10,15 +10,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="min-h-screen bg-neutral-50 overflow-x-hidden">
             {/* Sidebar (handles its own fixed positioning + overlay) */}
             <AdminSidebar
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
             />
 
-            {/* Main content */}
-            <div className="w-full lg:ml-64">
+            {/* Main content — lg:pl-64 offsets for the fixed 256px sidebar */}
+            <div className="min-w-0 max-w-full lg:pl-64">
                 {/* Mobile top bar with burger button */}
                 <header className="lg:hidden flex items-center gap-4 px-4 py-3 bg-neutral-900 text-white sticky top-0 z-20">
                     <button
@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </header>
 
                 {/* Page content */}
-                <main className="px-3 py-4 sm:px-4 lg:px-8 lg:py-8">
+                <main className="px-3 py-4 sm:px-6 lg:px-8 lg:py-8 min-w-0 overflow-x-hidden">
                     {children}
                 </main>
             </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
     Search,
     MapPin,
@@ -14,6 +15,7 @@ import {
     ChevronDown,
     Plus,
     Minus,
+    SearchX,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -185,13 +187,56 @@ export default function ApartmentFilters({
     apartments,
     cities,
 }: ApartmentFiltersProps) {
-    // ── Filter state ──────────────────────────────────────────────────────────
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // ── Seed initial state from URL params ────────────────────────────────────
+    // `location` → city filter; `guests` → min bedrooms (1 guest ≈ 1 bedroom)
     const [search, setSearch] = useState("");
-    const [city, setCity] = useState("");
+    const [city, setCity] = useState(() => searchParams.get("location") ?? "");
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
-    const [bedrooms, setBedrooms] = useState(0); // 0 = any
+    const [bedrooms, setBedrooms] = useState(() => {
+        const g = searchParams.get("guests");
+        return g ? Math.max(0, Math.floor(parseInt(g) / 2)) : 0;
+    });
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    // ── Write filter changes back to URL (only on explicit user interaction) ───
+    // We do NOT use useEffect for this — it fires on mount in React Strict Mode
+    // (twice in dev), which triggers router.replace() and a fresh server render
+    // that can wipe the date-filtered apartment list.
+    function pushFilter(overrides: {
+        city?: string;
+        bedrooms?: number;
+        minPrice?: string;
+        maxPrice?: string;
+        search?: string;
+    }) {
+        const params = new URLSearchParams(searchParams.toString());
+        const nextCity = overrides.city ?? city;
+        const nextBedrooms = overrides.bedrooms ?? bedrooms;
+        const nextMinPrice = overrides.minPrice ?? minPrice;
+        const nextMaxPrice = overrides.maxPrice ?? maxPrice;
+        const nextSearch = overrides.search ?? search;
+
+        if (nextCity) params.set("location", nextCity);
+        else params.delete("location");
+
+        if (nextSearch) params.set("q", nextSearch);
+        else params.delete("q");
+
+        if (nextMinPrice) params.set("minPrice", nextMinPrice);
+        else params.delete("minPrice");
+
+        if (nextMaxPrice) params.set("maxPrice", nextMaxPrice);
+        else params.delete("maxPrice");
+
+        if (nextBedrooms > 0) params.set("minBeds", String(nextBedrooms));
+        else params.delete("minBeds");
+
+        router.replace(`/our-apartments?${params.toString()}`, { scroll: false });
+    }
 
     // ── Derived prices for range hints ────────────────────────────────────────
     const allPrices = apartments.map((a) => a.pricePerNight);
@@ -205,11 +250,7 @@ export default function ApartmentFilters({
         const max = maxPrice ? parseInt(maxPrice) : null;
 
         return apartments.filter((apt) => {
-            if (
-                q &&
-                !apt.title.toLowerCase().includes(q) &&
-                !(apt.city ?? "").toLowerCase().includes(q)
-            )
+            if (q && !apt.title.toLowerCase().includes(q) && !(apt.city ?? "").toLowerCase().includes(q))
                 return false;
             if (city && apt.city !== city) return false;
             if (min !== null && apt.pricePerNight < min) return false;
@@ -264,7 +305,10 @@ export default function ApartmentFilters({
                             type="text"
                             placeholder="Search by name or location…"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                pushFilter({ search: e.target.value });
+                            }}
                             onFocus={focusBorder}
                             onBlur={blurBorder}
                             className="w-full pl-9 pr-4 py-2.5"
@@ -325,7 +369,10 @@ export default function ApartmentFilters({
                                 />
                                 <select
                                     value={city}
-                                    onChange={(e) => setCity(e.target.value)}
+                                    onChange={(e) => {
+                                        setCity(e.target.value);
+                                        pushFilter({ city: e.target.value });
+                                    }}
                                     onFocus={focusBorder}
                                     onBlur={blurBorder}
                                     className="w-full pl-9 pr-8 py-2.5 appearance-none cursor-pointer"
@@ -359,7 +406,10 @@ export default function ApartmentFilters({
                                 min={0}
                                 placeholder={`$${globalMin}`}
                                 value={minPrice}
-                                onChange={(e) => setMinPrice(e.target.value)}
+                                onChange={(e) => {
+                                    setMinPrice(e.target.value);
+                                    pushFilter({ minPrice: e.target.value });
+                                }}
                                 onFocus={focusBorder}
                                 onBlur={blurBorder}
                                 className="w-full px-4 py-2.5"
@@ -381,7 +431,10 @@ export default function ApartmentFilters({
                                 min={0}
                                 placeholder={`$${globalMax}`}
                                 value={maxPrice}
-                                onChange={(e) => setMaxPrice(e.target.value)}
+                                onChange={(e) => {
+                                    setMaxPrice(e.target.value);
+                                    pushFilter({ maxPrice: e.target.value });
+                                }}
                                 onFocus={focusBorder}
                                 onBlur={blurBorder}
                                 className="w-full px-4 py-2.5"
@@ -390,7 +443,7 @@ export default function ApartmentFilters({
                             />
                         </div>
 
-                        {/* Bedrooms counter */}
+                        {/* Bedrooms counter — also receives guests÷2 from home search */}
                         <div className="flex flex-col gap-1">
                             <label
                                 className="text-xs font-semibold uppercase tracking-wider"
@@ -406,7 +459,11 @@ export default function ApartmentFilters({
                                 }}
                             >
                                 <button
-                                    onClick={() => setBedrooms((v) => Math.max(0, v - 1))}
+                                    onClick={() => {
+                                        const next = Math.max(0, bedrooms - 1);
+                                        setBedrooms(next);
+                                        pushFilter({ bedrooms: next });
+                                    }}
                                     className="flex items-center justify-center transition-colors"
                                     style={{
                                         width: 40,
@@ -429,7 +486,11 @@ export default function ApartmentFilters({
                                     {bedrooms === 0 ? "Any" : `${bedrooms}+`}
                                 </span>
                                 <button
-                                    onClick={() => setBedrooms((v) => Math.min(10, v + 1))}
+                                    onClick={() => {
+                                        const next = Math.min(10, bedrooms + 1);
+                                        setBedrooms(next);
+                                        pushFilter({ bedrooms: next });
+                                    }}
                                     className="flex items-center justify-center transition-colors"
                                     style={{
                                         width: 40,
@@ -501,21 +562,37 @@ export default function ApartmentFilters({
                 )}
             </div>
 
-            {/* ── Grid ────────────────────────────────────────────────────────── */}
+            {/* ── Grid / Empty state ────────────────────────────────────────────── */}
             {filtered.length === 0 ? (
                 <div
-                    className="text-center py-20 rounded-xl border-2 border-dashed"
-                    style={{ borderColor: "rgba(197,160,89,0.2)", background: "rgba(197,160,89,0.03)" }}
+                    className="text-center py-24 rounded-2xl border-2 border-dashed flex flex-col items-center gap-6"
+                    style={{ borderColor: "rgba(197,160,89,0.25)", background: "rgba(197,160,89,0.03)" }}
                 >
-                    <p className="text-muted-foreground text-lg mb-2">
-                        No properties match your filters.
-                    </p>
+                    <div
+                        className="w-16 h-16 rounded-full flex items-center justify-center"
+                        style={{ background: "rgba(197,160,89,0.10)" }}
+                    >
+                        <SearchX className="w-8 h-8" style={{ color: GOLD }} />
+                    </div>
+                    <div className="space-y-2">
+                        <p className="text-foreground font-semibold text-lg">
+                            No villas found matching your criteria.
+                        </p>
+                        <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                            Try adjusting your filters or dates — our collection is updated regularly.
+                        </p>
+                    </div>
                     <button
                         onClick={clearAll}
-                        className="font-medium underline underline-offset-2"
-                        style={{ color: GOLD }}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
+                        style={{
+                            background: GOLD,
+                            color: "#fff",
+                            boxShadow: "0 4px 14px rgba(197,160,89,0.35)",
+                        }}
                     >
-                        Clear filters &amp; show all
+                        <X className="w-4 h-4" />
+                        Reset all filters
                     </button>
                 </div>
             ) : (

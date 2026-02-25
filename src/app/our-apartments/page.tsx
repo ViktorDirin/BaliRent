@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getAvailableApartments } from "@/lib/actions";
 import { CalendarSearch } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import ApartmentFilters, { ApartmentItem } from "@/components/ApartmentFilters";
 
 // Force dynamic since we're fetching data
@@ -45,8 +46,12 @@ export default async function OurApartmentsPage({
     let isFiltered = false;
 
     if (from && to) {
-        const startDate = new Date(from);
-        const endDate = new Date(to);
+        // Append T00:00:00 so JS parses as LOCAL midnight, not UTC midnight.
+        // new Date("2026-02-27") → UTC midnight → Feb 26 in UTC+7 ← bug
+        // new Date("2026-02-27T00:00:00") → local midnight → Feb 27 ← correct
+        const startDate = new Date(`${from}T00:00:00`);
+        const endDate = new Date(`${to}T00:00:00`);
+
         if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
             // getAvailableApartments returns full Apartment objects — cast select fields
             const available = await getAvailableApartments(startDate, endDate, guests);
@@ -138,7 +143,11 @@ export default async function OurApartmentsPage({
                 )}
 
                 {/* Client-side filter bar + grid */}
-                <ApartmentFilters apartments={apartments} cities={cities} />
+                <Suspense fallback={
+                    <div className="py-20 text-center text-muted-foreground">Loading villas…</div>
+                }>
+                    <ApartmentFilters apartments={apartments} cities={cities} />
+                </Suspense>
 
             </main>
         </div>
